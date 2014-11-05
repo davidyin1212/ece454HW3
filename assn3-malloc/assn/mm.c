@@ -150,8 +150,8 @@ void *extend_heap(size_t words)
     PUT(HDRP(bp), PACK(size, 0));                // free block header
     PUT(FTRP(bp), PACK(size, 0));                // free block footer
     PUT(HDRP(NEXT_BLKP(bp)), PACK(0, 1));        // new epilogue header
-    PUT(HDRP(bp) + WSIZE, free_list);
-    PUT(HDRP(bp) + DSIZE, NULL);
+    PUT(HDRP(bp) + WSIZE, (uintptr_t *) free_list);
+    PUT(HDRP(bp) + DSIZE, (uintptr_t *) NULL);
     free_list = bp;
 
 
@@ -181,7 +181,7 @@ void * find_fit(size_t asize)
     if (free_list == NULL) {
         return NULL;
     }
-    for (bp = free_list; GET_SIZE(HDRP(bp)) > 0; bp = NEXT_FREE_BLKP(bp))
+    for (bp = free_list; GET_SIZE(HDRP((uintptr_t *) bp)) > 0; bp = NEXT_FREE_BLKP((uintptr_t *) bp))
     {
         if (!GET_ALLOC(HDRP(bp)) && (asize <= GET_SIZE(HDRP(bp))))
         {
@@ -217,10 +217,10 @@ void mm_free(void *bp)
     PUT(HDRP(bp), PACK(size,0));
     PUT(FTRP(bp), PACK(size,0));
     coalesce(bp);
-    PUT(HDRP(bp) + WSIZE, free_list);
-    PUT(free_list + WSIZE, bp);
+    PUT(HDRP(bp) + WSIZE, (uintptr_t *) free_list);
+    PUT(free_list + WSIZE, (uintptr_t *) bp);
     free_list = bp;
-    PUT(HDRP(bp) + DSIZE, NULL); 
+    PUT(HDRP(bp) + DSIZE, (uintptr_t *) NULL); 
 }
 
 
@@ -251,8 +251,8 @@ void *mm_malloc(size_t size)
     /* Search the free list for a fit */
     if ((bp = find_fit(asize)) != NULL) {
         place(bp, asize);
-        PUT(FTRP(bp) + WSIZE, free_list);
-        PUT(FTRP(bp) + DSIZE, NULL);
+        PUT(FTRP(bp) + WSIZE, (uintptr_t *) free_list);
+        PUT(FTRP(bp) + DSIZE, (uintptr_t *) NULL);
         free_list = FTRP(bp) + WSIZE;
         return bp;
     }
@@ -263,8 +263,8 @@ void *mm_malloc(size_t size)
         return NULL;
     place(bp, asize);
 
-    PUT(FTRP(bp) + WSIZE, free_list);
-    PUT(FTRP(bp) + DSIZE, NULL);
+    PUT(FTRP(bp) + WSIZE, (uintptr_t *) free_list);
+    PUT(FTRP(bp) + DSIZE, (uintptr_t *) NULL);
     free_list = FTRP(bp) + WSIZE;
     return bp;
 
