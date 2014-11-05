@@ -262,7 +262,7 @@ void *mm_malloc(size_t size)
     place(bp, asize);
 
     PUT(FTRP(bp) + WSIZE, next_alloc);
-    PUT(FTRP(bp) + DSIZE, prev_alloc]]]);
+    PUT(FTRP(bp) + DSIZE, prev_alloc);
     free_list = FTRP(bp) + WSIZE;
     return bp;
 
