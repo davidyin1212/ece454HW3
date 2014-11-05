@@ -78,15 +78,16 @@ void* free_list = NULL;
  **********************************************************/
  int mm_init(void)
  {
-   if ((heap_listp = mem_sbrk(4*WSIZE)) == (void *)-1)
-         return -1;
-     PUT(heap_listp, 0);                         // alignment padding
-     PUT(heap_listp + (1 * WSIZE), PACK(DSIZE, 1));   // prologue header
-     PUT(heap_listp + (2 * WSIZE), PACK(DSIZE, 1));   // prologue footer
-     PUT(heap_listp + (3 * WSIZE), PACK(0, 1));    // epilogue header
-     heap_listp += DSIZE;
-
-     return 0;
+    fputs("init", stderr);
+    if ((heap_listp = mem_sbrk(4*WSIZE)) == (void *)-1)
+        return -1;
+    PUT(heap_listp, 0);                         // alignment padding
+    PUT(heap_listp + (1 * WSIZE), PACK(DSIZE, 1));   // prologue header
+    PUT(heap_listp + (2 * WSIZE), PACK(DSIZE, 1));   // prologue footer
+    PUT(heap_listp + (3 * WSIZE), PACK(0, 1));    // epilogue header
+    heap_listp += DSIZE;
+    
+    return 0;
  }
 
 /**********************************************************
