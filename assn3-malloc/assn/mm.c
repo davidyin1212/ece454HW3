@@ -78,7 +78,6 @@ void* free_list = NULL;
  **********************************************************/
  int mm_init(void)
  {
-    fputs("init", stderr);
     if ((heap_listp = mem_sbrk(4*WSIZE)) == (void *)-1)
         return -1;
     PUT(heap_listp, 0);                         // alignment padding
