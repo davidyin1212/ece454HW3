@@ -181,7 +181,7 @@ void * find_fit(size_t asize)
     if (free_list == NULL) {
         return NULL;
     }
-    for (bp = free_list; GET_SIZE(HDRP((uintptr_t) bp)) > 0; bp = NEXT_FREE_BLKP((uintptr_t) bp))
+    for (bp = (uintptr_t) free_list; GET_SIZE(HDRP((uintptr_t) bp)) > 0; bp = NEXT_FREE_BLKP((uintptr_t) bp))
     {
         if (!GET_ALLOC(HDRP(bp)) && (asize <= GET_SIZE(HDRP(bp))))
         {
