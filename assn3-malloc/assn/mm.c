@@ -151,7 +151,7 @@ void *extend_heap(size_t words)
     PUT(FTRP(bp), PACK(size, 0));                // free block footer
     PUT(HDRP(NEXT_BLKP(bp)), PACK(0, 1));        // new epilogue header
     PUT(HDRP(bp) + WSIZE, free_list);
-    PUT(HDRP(bp) + DSIZE, NULL)
+    PUT(HDRP(bp) + DSIZE, NULL);
     free_list = bp;
 
 
