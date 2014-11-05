@@ -64,7 +64,12 @@ team_t team = {
 #define NEXT_BLKP(bp) ((char *)(bp) + GET_SIZE(((char *)(bp) - WSIZE)))
 #define PREV_BLKP(bp) ((char *)(bp) - GET_SIZE(((char *)(bp) - DSIZE)))
 
+/* Given block ptr bp, find the next and previous free blocks */ 
+#define NEXT_FREE_BLKP(bp) (GET(bp))
+#define PREV_FREE_BLKP(bp) (GET(bp + WSIZE))
+
 void* heap_listp = NULL;
+void* free_list = NULL;
 
 /**********************************************************
  * mm_init
@@ -80,6 +85,7 @@ void* heap_listp = NULL;
      PUT(heap_listp + (2 * WSIZE), PACK(DSIZE, 1));   // prologue footer
      PUT(heap_listp + (3 * WSIZE), PACK(0, 1));    // epilogue header
      heap_listp += DSIZE;
+     free_list = heap_listp;
 
      return 0;
  }
@@ -160,7 +166,16 @@ void *extend_heap(size_t words)
 void * find_fit(size_t asize)
 {
     void *bp;
-    for (bp = heap_listp; GET_SIZE(HDRP(bp)) > 0; bp = NEXT_BLKP(bp))
+    // for (bp = heap_listp; GET_SIZE(HDRP(bp)) > 0; bp = NEXT_BLKP(bp))
+    // {
+    //     if (!GET_ALLOC(HDRP(bp)) && (asize <= GET_SIZE(HDRP(bp))))
+    //     {
+    //         return bp;
+    //     }
+    // }
+
+    //explicit free list
+    for (bp = free_list; GET_SIZE(HDRP(bp)) > 0; bp = NEXT_FREE_BLKP(bp))
     {
         if (!GET_ALLOC(HDRP(bp)) && (asize <= GET_SIZE(HDRP(bp))))
         {
@@ -196,6 +211,10 @@ void mm_free(void *bp)
     PUT(HDRP(bp), PACK(size,0));
     PUT(FTRP(bp), PACK(size,0));
     coalesce(bp);
+    PUT(HDRP(bp) + WSIZE, free_list);
+    PUT(free_list + WSIZE, bp);
+    free_list = bp;
+    PUT(HDRP(bp) + DSIZE, NULL); 
 }
 
 
@@ -212,6 +231,8 @@ void *mm_malloc(size_t size)
     size_t asize; /* adjusted block size */
     size_t extendsize; /* amount to extend heap if no fit */
     char * bp;
+    char * prev_alloc;
+    char * next_alloc;
 
     /* Ignore spurious requests */
     if (size == 0)
@@ -223,9 +244,14 @@ void *mm_malloc(size_t size)
     else
         asize = DSIZE * ((size + (DSIZE) + (DSIZE-1))/ DSIZE);
 
+    next_alloc = GET(HDRP(bp) + WSIZE);
+    prev_alloc = GET(HDRP(bp) + DSIZE);
     /* Search the free list for a fit */
     if ((bp = find_fit(asize)) != NULL) {
         place(bp, asize);
+        PUT(FTRP(bp) + WSIZE, next_alloc);
+        PUT(FTRP(bp) + DSIZE, prev_alloc);
+        free_list = FTRP(bp) + WSIZE;
         return bp;
     }
 
@@ -234,6 +260,10 @@ void *mm_malloc(size_t size)
     if ((bp = extend_heap(extendsize/WSIZE)) == NULL)
         return NULL;
     place(bp, asize);
+
+    PUT(FTRP(bp) + WSIZE, next_alloc);
+    PUT(FTRP(bp) + DSIZE, prev_alloc]]]);
+    free_list = FTRP(bp) + WSIZE;
     return bp;
 
 }
