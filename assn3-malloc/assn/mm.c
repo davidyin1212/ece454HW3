@@ -85,7 +85,6 @@ void* free_list = NULL;
      PUT(heap_listp + (2 * WSIZE), PACK(DSIZE, 1));   // prologue footer
      PUT(heap_listp + (3 * WSIZE), PACK(0, 1));    // epilogue header
      heap_listp += DSIZE;
-     free_list = heap_listp;
 
      return 0;
  }
@@ -151,6 +150,10 @@ void *extend_heap(size_t words)
     PUT(HDRP(bp), PACK(size, 0));                // free block header
     PUT(FTRP(bp), PACK(size, 0));                // free block footer
     PUT(HDRP(NEXT_BLKP(bp)), PACK(0, 1));        // new epilogue header
+    PUT(HDRP(bp) + WSIZE, free_list);
+    PUT(HDRP(bp) + DSIZE, NULL)
+    free_list = bp;
+
 
     /* Coalesce if the previous block was free */
     return coalesce(bp);
@@ -175,6 +178,9 @@ void * find_fit(size_t asize)
     // }
 
     //explicit free list
+    if (free_list == NULL) {
+        return NULL;
+    }
     for (bp = free_list; GET_SIZE(HDRP(bp)) > 0; bp = NEXT_FREE_BLKP(bp))
     {
         if (!GET_ALLOC(HDRP(bp)) && (asize <= GET_SIZE(HDRP(bp))))
@@ -231,8 +237,6 @@ void *mm_malloc(size_t size)
     size_t asize; /* adjusted block size */
     size_t extendsize; /* amount to extend heap if no fit */
     char * bp;
-    char * prev_alloc;
-    char * next_alloc;
 
     /* Ignore spurious requests */
     if (size == 0)
@@ -244,13 +248,11 @@ void *mm_malloc(size_t size)
     else
         asize = DSIZE * ((size + (DSIZE) + (DSIZE-1))/ DSIZE);
 
-    next_alloc = GET(HDRP(bp) + WSIZE);
-    prev_alloc = GET(HDRP(bp) + DSIZE);
     /* Search the free list for a fit */
     if ((bp = find_fit(asize)) != NULL) {
         place(bp, asize);
-        PUT(FTRP(bp) + WSIZE, next_alloc);
-        PUT(FTRP(bp) + DSIZE, prev_alloc);
+        PUT(FTRP(bp) + WSIZE, free_list);
+        PUT(FTRP(bp) + DSIZE, NULL);
         free_list = FTRP(bp) + WSIZE;
         return bp;
     }
@@ -261,8 +263,8 @@ void *mm_malloc(size_t size)
         return NULL;
     place(bp, asize);
 
-    PUT(FTRP(bp) + WSIZE, next_alloc);
-    PUT(FTRP(bp) + DSIZE, prev_alloc);
+    PUT(FTRP(bp) + WSIZE, free_list);
+    PUT(FTRP(bp) + DSIZE, NULL);
     free_list = FTRP(bp) + WSIZE;
     return bp;
 
