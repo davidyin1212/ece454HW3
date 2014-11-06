@@ -150,7 +150,7 @@ void *extend_heap(size_t words)
     PUT(HDRP(bp), PACK(size, 0));                // free block header
     PUT(FTRP(bp), PACK(size, 0));                // free block footer
     PUT(HDRP(NEXT_BLKP(bp)), PACK(0, 1));        // new epilogue header
-    fprintf(stderr, "allocated this much space: %d\n", size/);
+    fprintf(stderr, "allocated this much space: %d\n", size);
     fprintf(stderr, "extend heap free_list: %p\n", (uintptr_t) free_list);
     fprintf(stderr, "extend heap bp: %p\n", (uintptr_t) bp);
     PUT(HDRP(bp) + WSIZE, (uintptr_t) free_list);
