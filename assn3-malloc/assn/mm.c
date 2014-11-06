@@ -284,6 +284,7 @@ void place(void* bp, size_t asize)
  **********************************************************/
 void mm_free(void *bp)
 {
+    fprintf(stderr, "----------------freee timeeeee\n", );
     if(bp == NULL){
       return;
     }
