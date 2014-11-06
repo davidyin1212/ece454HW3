@@ -261,6 +261,8 @@ void place(void* bp, size_t asize)
         // PUT(FTRP(bp) + DSIZE, (uintptr_t) next);
         // PUT(FTRP(bp) + DSIZE + WSIZE, (uintptr_t) pred);
         // free_list = FTRP(bp) + DSIZE;
+    } else {
+        free_list = NULL;
     }
 }
 
