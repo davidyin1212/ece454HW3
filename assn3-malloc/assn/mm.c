@@ -136,11 +136,11 @@ void *coalesce(void *bp)
 
 void remove_from_list(void *p) {
     //get p next's pred pointer
-    char *pred_of_next = GET(HDRP(GET(HDRP(p) + WSIZE)) + DSIZE);
+    void *pred_of_next = GET(p) + WSIZE;
     //get p pred's next pointer
-    char *next_of_pred = GET(HDRP(GET(HDRP(p) + DSIZE)) + WSIZE);
-    PUT(next_of_pred, (uintptr_t) GET(HDRP(p) + WSIZE));
-    PUT(pred_of_next, (uintptr_t) GET(HDRP(p) + DSIZE));
+    void *next_of_pred = GET(p + WSIZE);
+    PUT(next_of_pred, (uintptr_t) GET(p);
+    PUT(pred_of_next, (uintptr_t) GET(p + WSIZE));
 }
 
 /**********************************************************
