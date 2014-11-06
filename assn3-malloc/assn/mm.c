@@ -135,11 +135,12 @@ void *coalesce(void *bp)
 }
 
 void remove_from_list(void *p) {
-    fprintf(stderr, "vlaue of p: %p\n", (uintptr_t)p);
+    fprintf(stderr, "value of p: %p\n", (uintptr_t)p);
     //get p next's pred pointer
     void *pred_of_next = GET(p) + WSIZE;
     //get p pred's next pointer
     void *next_of_pred = GET(p + WSIZE);
+    fprintf(stderr, "value of pred: %p value of next: %p\n", (uintptr_t)next_of_pred, GET(p));
     if (next_of_pred != NULL)
         PUT(next_of_pred, (uintptr_t) GET(p));
     if (pred_of_next != NULL)
@@ -238,7 +239,8 @@ void place(void* bp, size_t asize)
     // char * next;
     // pred = GET(HDRP(bp) + DSIZE);
     // next = GET(HDRP(bp) + WSIZE);
-    remove_from_list(bp);
+    if ()
+        remove_from_list(bp);
 
     fprintf(stderr, "asize:%d, bsize:%d\n", asize, bsize);
 
