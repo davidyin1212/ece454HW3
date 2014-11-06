@@ -186,7 +186,7 @@ void *extend_heap(size_t words)
     fprintf(stderr, "extend heap bp: %p\n", (uintptr_t) bp);
     PUT(HDRP(bp) + WSIZE, (uintptr_t) free_list);
     PUT(HDRP(bp) + DSIZE, (uintptr_t) NULL);
-    free_list = bp;
+    // free_list = bp;
 
 
     /* Coalesce if the previous block was free */
@@ -254,7 +254,8 @@ void place(void* bp, size_t asize)
     PUT(HDRP(bp), PACK(asize, 1));
     PUT(FTRP(bp), PACK(asize, 1));
     PUT(FTRP(bp) + WSIZE, PACK(bsize - asize, 0));
-
+    free_list = FTRP(bp) + DSIZE;
+    
     //insert free left back in at head of list
     if (bsize - asize > 0) {
         push(FTRP(bp) + DSIZE);
