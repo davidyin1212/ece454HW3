@@ -274,6 +274,7 @@ void * find_fit(size_t asize)
         if (free_lists[i] != NULL) {
             Node* free_list = free_lists[i];
             do {
+                fprintf(stderr, "find_fit\n");
                 int size = GET_SIZE(HDRP(free_list));
                 //remove it from the free list
                 if (size >= asize && size - asize < 128) {
