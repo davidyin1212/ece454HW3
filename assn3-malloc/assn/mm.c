@@ -456,6 +456,7 @@ void *mm_malloc(size_t size)
     // extendsize = MAX(asize, CHUNKSIZE);
     if ((bp = extend_heap(asize/WSIZE)) == NULL)
         return NULL;
+    fprintf(stderr, "extend_heap\n");
     place(bp, asize);
 
     // PUT(FTRP(bp) + DSIZE, (uintptr_t) next);
