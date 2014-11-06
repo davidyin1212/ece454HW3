@@ -267,34 +267,61 @@ void *extend_heap(size_t words)
  **********************************************************/
 void * find_fit(size_t asize)
 {
-    void *bp;
-    // for (bp = heap_listp; GET_SIZE(HDRP(bp)) > 0; bp = NEXT_BLKP(bp))
+    int class = get_list_class(asize);
+    int i;
+    for (i = class; i < NUM_FREE_LISTS; i++) {
+        if (free_lists[i] != NULL) {
+            Node* free_list = free_lists[i];
+            int size = GET_SIZE(HDRP(free_list));
+            //remove it from the free list
+            if (size >= asize && size - asize < 128) {
+                remove_from_list(free_list);
+                return (void*) free_list;
+            } else if (size - asize > 128) {
+                remove_from_list(free_list);
+                void *p = (void*)free_list + asize;
+
+                PUT(HDRP(free_list), PACK(asize, 0));
+                PUT(FTRP(free_list), PACK(asize, 0));
+
+                PUT(HDRP(p), PACK(size-asize,0));
+                PUT(FTRP(p), PACK(size-asize,0));
+                push(p);
+                return (void*) free_list;
+            }
+            while (free_list != free_lists[i]) {
+
+            }
+        }
+    }
+    // void *bp;
+    // // for (bp = heap_listp; GET_SIZE(HDRP(bp)) > 0; bp = NEXT_BLKP(bp))
+    // // {
+    // //     if (!GET_ALLOC(HDRP(bp)) && (asize <= GET_SIZE(HDRP(bp))))
+    // //     {
+    // //         return bp;
+    // //     }
+    // // }
+
+    // //explicit free list
+    // if (free_list == NULL) {
+    //     return NULL;
+    // }
+    // fprintf(stderr, "next free blk: %p\n", (uintptr_t) NEXT_FREE_BLKP(free_list));
+    // fprintf(stderr, "free_list: %p\n", (uintptr_t) free_list);
+    // fprintf(stderr, "size: %d\n", (uintptr_t) GET_SIZE(HDRP(free_list)));
+    // fprintf(stderr, "asize: %d\n", (uintptr_t) asize);
+    // fprintf(stderr, "is allocated: %d\n", GET_ALLOC(HDRP(free_list)));
+
+    // for (bp = (void *) free_list; bp != NULL; bp = (void *) NEXT_FREE_BLKP(bp))
     // {
+    //     // fprintf(stderr, "bp: %p\n", (uintptr_t) bp);
     //     if (!GET_ALLOC(HDRP(bp)) && (asize <= GET_SIZE(HDRP(bp))))
     //     {
     //         return bp;
     //     }
     // }
-
-    //explicit free list
-    if (free_list == NULL) {
-        return NULL;
-    }
-    fprintf(stderr, "next free blk: %p\n", (uintptr_t) NEXT_FREE_BLKP(free_list));
-    fprintf(stderr, "free_list: %p\n", (uintptr_t) free_list);
-    fprintf(stderr, "size: %d\n", (uintptr_t) GET_SIZE(HDRP(free_list)));
-    fprintf(stderr, "asize: %d\n", (uintptr_t) asize);
-    fprintf(stderr, "is allocated: %d\n", GET_ALLOC(HDRP(free_list)));
-
-    for (bp = (void *) free_list; bp != NULL; bp = (void *) NEXT_FREE_BLKP(bp))
-    {
-        // fprintf(stderr, "bp: %p\n", (uintptr_t) bp);
-        if (!GET_ALLOC(HDRP(bp)) && (asize <= GET_SIZE(HDRP(bp))))
-        {
-            return bp;
-        }
-    }
-    return NULL;
+    // return NULL;
 }
 
 /**********************************************************
@@ -305,56 +332,58 @@ void place(void* bp, size_t asize)
 {
     /* Get the current block size */
     size_t bsize = GET_SIZE(HDRP(bp));
-    int isHead = 0;
-    // char * pred;
-    // char * next;
-    // pred = GET(HDRP(bp) + DSIZE);
-    // next = GET(HDRP(bp) + WSIZE);
-    remove_from_list(bp);  
+    PUT(HDRP(bp), PACK(bsize, 1));
+    PUT(FTRP(bp), PACK(bsize, 1));
+    // int isHead = 0;
+    // // char * pred;
+    // // char * next;
+    // // pred = GET(HDRP(bp) + DSIZE);
+    // // next = GET(HDRP(bp) + WSIZE);
+    // remove_from_list(bp);  
 
-    fprintf(stderr, "asize:%d, bsize:%d\n", asize, bsize);
+    // fprintf(stderr, "asize:%d, bsize:%d\n", asize, bsize);
 
-    //check to see if not already head of list
-    if (GET(bp + WSIZE) == NULL) {
-        // isHead = 1;
-        free_list = NULL;
-    }
+    // //check to see if not already head of list
+    // if (GET(bp + WSIZE) == NULL) {
+    //     // isHead = 1;
+    //     free_list = NULL;
+    // }
 
-    // if (GET(bp) != NULL)
-    //     fprintf(stderr, "again next: %p, pred: %p\n", GET(bp), GET(GET(bp) + WSIZE));
+    // // if (GET(bp) != NULL)
+    // //     fprintf(stderr, "again next: %p, pred: %p\n", GET(bp), GET(GET(bp) + WSIZE));
 
-    //add to front of list
-    fprintf(stderr, "isHead: %d\n", isHead);
-    //insert free left back in at head of list
-    // if (bsize - asize > 0 && isHead != 1) {
+    // //add to front of list
+    // fprintf(stderr, "isHead: %d\n", isHead);
+    // //insert free left back in at head of list
+    // // if (bsize - asize > 0 && isHead != 1) {
+    // //     push(FTRP(bp) + DSIZE);
+    // //     // PUT(FTRP(bp) + DSIZE, (uintptr_t) next);
+    // //     // PUT(FTRP(bp) + DSIZE + WSIZE, (uintptr_t) pred);
+    // //     // free_list = FTRP(bp) + DSIZE;
+    // // } else if (isHead == 1) {
+    // //     PUT(FTRP(bp) + DSIZE, free_list);
+    // //     PUT(FTRP(bp) + DSIZE + WSIZE, NULL);
+    // //     free_list = FTRP(bp) + DSIZE;
+    // // } 
+    // // if (bsize - asize == 0) {
+    // //     free_list = NULL;
+    // // }
+
+    // //split
+    // PUT(FTRP(bp), PACK(bsize - asize, 0));
+    // PUT(HDRP(bp), PACK(asize, 1));
+    // PUT(FTRP(bp), PACK(asize, 1));
+    // PUT(FTRP(bp) + WSIZE, PACK(bsize - asize, 0));
+    // // free_list = FTRP(bp) + DSIZE;
+
+    // if (bsize - asize != 0) {
     //     push(FTRP(bp) + DSIZE);
     //     // PUT(FTRP(bp) + DSIZE, (uintptr_t) next);
     //     // PUT(FTRP(bp) + DSIZE + WSIZE, (uintptr_t) pred);
     //     // free_list = FTRP(bp) + DSIZE;
-    // } else if (isHead == 1) {
-    //     PUT(FTRP(bp) + DSIZE, free_list);
-    //     PUT(FTRP(bp) + DSIZE + WSIZE, NULL);
-    //     free_list = FTRP(bp) + DSIZE;
-    // } 
-    // if (bsize - asize == 0) {
-    //     free_list = NULL;
+    // } else {
+    //     free_list == NULL;
     // }
-
-    //split
-    PUT(FTRP(bp), PACK(bsize - asize, 0));
-    PUT(HDRP(bp), PACK(asize, 1));
-    PUT(FTRP(bp), PACK(asize, 1));
-    PUT(FTRP(bp) + WSIZE, PACK(bsize - asize, 0));
-    // free_list = FTRP(bp) + DSIZE;
-
-    if (bsize - asize != 0) {
-        push(FTRP(bp) + DSIZE);
-        // PUT(FTRP(bp) + DSIZE, (uintptr_t) next);
-        // PUT(FTRP(bp) + DSIZE + WSIZE, (uintptr_t) pred);
-        // free_list = FTRP(bp) + DSIZE;
-    } else {
-        free_list == NULL;
-    }
 }
 
 /**********************************************************
@@ -370,11 +399,12 @@ void mm_free(void *bp)
     size_t size = GET_SIZE(HDRP(bp));
     PUT(HDRP(bp), PACK(size,0));
     PUT(FTRP(bp), PACK(size,0));
-    coalesce(bp);
-    PUT(HDRP(bp) + WSIZE, (uintptr_t) free_list);
-    PUT(free_list + WSIZE, (uintptr_t) bp);
-    free_list = bp;
-    PUT(HDRP(bp) + DSIZE, (uintptr_t) NULL); 
+    push((Node*)coalesce(bp));
+
+    // PUT(HDRP(bp) + WSIZE, (uintptr_t) free_list);
+    // PUT(free_list + WSIZE, (uintptr_t) bp);
+    // free_list = bp;
+    // PUT(HDRP(bp) + DSIZE, (uintptr_t) NULL); 
 }
 
 
@@ -395,6 +425,14 @@ void *mm_malloc(size_t size)
     /* Ignore spurious requests */
     if (size == 0)
         return NULL;
+
+    /* round it to a power of two value */
+    if (size < 128) { 
+        int i = 1;
+        while (i < size)
+            i <<= 1;
+        size = i;
+    }
 
     /* Adjust block size to include overhead and alignment reqs. */
     if (size <= DSIZE)
@@ -420,7 +458,7 @@ void *mm_malloc(size_t size)
     // PUT(FTRP(bp) + DSIZE + WSIZE, (uintptr_t) pred);
     // fprintf(stderr, "malloc heap free_list: %p\n", (uintptr_t) free_list);
     // free_list = FTRP(bp) + DSIZE;
-    fprintf(stderr, "after malloc heap free_list: %p\n", (uintptr_t) free_list);
+    // fprintf(stderr, "after malloc heap free_list: %p\n", (uintptr_t) free_list);
     return bp;
 
 }
