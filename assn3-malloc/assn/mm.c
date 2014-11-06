@@ -192,6 +192,7 @@ void * find_fit(size_t asize)
 
     for (bp = (void *) free_list; bp != NULL; bp = (void *) NEXT_FREE_BLKP(bp))
     {
+        fprintf(stderr, "bp: %p\n", (uintptr_t) bp);
         if (!GET_ALLOC(HDRP(bp)) && (asize <= GET_SIZE(HDRP(bp))))
         {
             return bp;
