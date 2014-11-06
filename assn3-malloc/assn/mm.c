@@ -254,7 +254,7 @@ void * find_fit(size_t asize)
     int index = list_index(asize);
     int i;
     for (i = index; i < NUM_FREE_LISTS; i++) {
-        fprintf(stderr, "NUM_FREE_LISTS: %d\n", NUM_FREE_LISTS);
+        // fprintf(stderr, "NUM_FREE_LISTS: %d\n", NUM_FREE_LISTS);
         if (free_lists[i] != NULL) {
             free_block* p = free_lists[i];
             do {
