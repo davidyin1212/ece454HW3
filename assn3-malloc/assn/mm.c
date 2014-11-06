@@ -137,7 +137,7 @@ void push(Node * bp) {
     if (bp == NULL) {
         return;
     }
-    fprintf(stderr, "push bp: %p\n", bp);
+    // fprintf(stderr, "push bp: %p\n", bp);
     int class = get_list_class(GET_SIZE(HDRP(bp)));
     Node* free_list = free_lists[class];
 
@@ -332,7 +332,7 @@ void * find_fit(size_t asize)
 void place(void* bp, size_t asize)
 {
     /* Get the current block size */
-    fprintf(stderr, "bp: %d\n", GET_SIZE(HDRP(bp)));
+    // fprintf(stderr, "bp: %d\n", GET_SIZE(HDRP(bp)));
     size_t bsize = GET_SIZE(HDRP(bp));
     PUT(HDRP(bp), PACK(bsize, 1));
     PUT(FTRP(bp), PACK(bsize, 1));
@@ -394,7 +394,7 @@ void place(void* bp, size_t asize)
  **********************************************************/
 void mm_free(void *bp)
 {
-    fprintf(stderr, "----------------freee timeeeee\n");
+    // fprintf(stderr, "----------------freee timeeeee\n");
     if(bp == NULL){
       return;
     }
@@ -442,7 +442,7 @@ void *mm_malloc(size_t size)
     else
         asize = DSIZE * ((size + (DSIZE) + (DSIZE-1))/ DSIZE);
 
-    fprintf(stderr, "------------------malloc size: %d\n", asize);
+    // fprintf(stderr, "------------------malloc size: %d\n", asize);
     /* Search the free list for a fit */
     if ((bp = find_fit(asize)) != NULL) {
         
