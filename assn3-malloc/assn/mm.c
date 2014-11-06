@@ -139,8 +139,10 @@ void remove_from_list(void *p) {
     void *pred_of_next = GET(p) + WSIZE;
     //get p pred's next pointer
     void *next_of_pred = GET(p + WSIZE);
-    PUT(next_of_pred, (uintptr_t) GET(p);
-    PUT(pred_of_next, (uintptr_t) GET(p + WSIZE));
+    if (next_of_pred != NULL)
+        PUT(next_of_pred, (uintptr_t) GET(p);
+    if (pred_of_next != NULL)
+        PUT(pred_of_next, (uintptr_t) GET(p + WSIZE));
 }
 
 /**********************************************************
