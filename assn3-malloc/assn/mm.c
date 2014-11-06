@@ -279,6 +279,7 @@ void * find_fit(size_t asize)
                 //remove it from the free list
                 if (size >= asize && size - asize < 128) {
                     remove_from_list(free_list);
+                    fprintf(stderr, "find_fit\n");
                     return (void*) free_list;
                 } else if (size - asize > 128) {
                     remove_from_list(free_list);
@@ -290,6 +291,7 @@ void * find_fit(size_t asize)
                     PUT(HDRP(p), PACK(size-asize,0));
                     PUT(FTRP(p), PACK(size-asize,0));
                     push(p);
+                    fprintf(stderr, "find_fit\n");
                     return (void*) free_list;
                 }
             } while (free_list != free_lists[i]);
@@ -336,7 +338,7 @@ void place(void* bp, size_t asize)
     size_t bsize = GET_SIZE(HDRP(bp));
     PUT(HDRP(bp), PACK(bsize, 1));
     PUT(FTRP(bp), PACK(bsize, 1));
-    fprintf(stderr, "bsize: %d asize: %d\n", bsize, asize);
+    // fprintf(stderr, "bsize: %d asize: %d\n", bsize, asize);
 
     // int isHead = 0;
     // // char * pred;
