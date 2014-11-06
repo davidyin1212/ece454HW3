@@ -269,7 +269,9 @@ void place(void* bp, size_t asize)
         // PUT(FTRP(bp) + DSIZE + WSIZE, (uintptr_t) pred);
         // free_list = FTRP(bp) + DSIZE;
     } else if (isHead == 1) {
-        push(free_list);
+        PUT(FTRP(bp) + DSIZE, free_list);
+        PUT(FTRP(bp) + DSIZE + WSIZE, NULL);
+        free_list = FTRP(bp) + DSIZE;
     } else {
         free_list = NULL;
     }
