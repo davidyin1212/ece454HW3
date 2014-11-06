@@ -186,7 +186,7 @@ void *extend_heap(size_t words)
     fprintf(stderr, "extend heap bp: %p\n", (uintptr_t) bp);
     PUT(HDRP(bp) + WSIZE, (uintptr_t) free_list);
     PUT(HDRP(bp) + DSIZE, (uintptr_t) NULL);
-    // free_list = bp;
+    free_list = bp;
 
 
     /* Coalesce if the previous block was free */
