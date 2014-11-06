@@ -145,6 +145,14 @@ void remove_from_list(void *p) {
         PUT(pred_of_next, (uintptr_t) GET(p + WSIZE));
 }
 
+// add to front of list
+void push(void * bp) {
+    void *next = bp;
+    PUT(next, free_list);
+    PUT(next + WSIZE, NULL);
+    free_list = bp;
+}
+
 /**********************************************************
  * extend_heap
  * Extend the heap by "words" words, maintaining alignment
@@ -225,22 +233,26 @@ void place(void* bp, size_t asize)
     /* Get the current block size */
     size_t bsize = GET_SIZE(HDRP(bp));
 
-    char * pred;
-    char * next;
-    pred = GET(HDRP(bp) + DSIZE);
-    next = GET(HDRP(bp) + WSIZE);
+    // char * pred;
+    // char * next;
+    // pred = GET(HDRP(bp) + DSIZE);
+    // next = GET(HDRP(bp) + WSIZE);
+    remove_from_list(bp);
 
     fprintf(stderr, "asize:%d, bsize:%d\n", asize, bsize);
 
+    //split
     PUT(FTRP(bp), PACK(bsize - asize, 0));
     PUT(HDRP(bp), PACK(asize, 1));
     PUT(FTRP(bp), PACK(asize, 1));
     PUT(FTRP(bp) + WSIZE, PACK(bsize - asize, 0));
 
+    //insert free left back in at head of list
     if (bsize - asize > 0) {
-        PUT(FTRP(bp) + DSIZE, (uintptr_t) next);
-        PUT(FTRP(bp) + DSIZE + WSIZE, (uintptr_t) pred);
-        free_list = FTRP(bp) + DSIZE;
+        push(FTRP(bp) + DSIZE);
+        // PUT(FTRP(bp) + DSIZE, (uintptr_t) next);
+        // PUT(FTRP(bp) + DSIZE + WSIZE, (uintptr_t) pred);
+        // free_list = FTRP(bp) + DSIZE;
     }
 }
 
