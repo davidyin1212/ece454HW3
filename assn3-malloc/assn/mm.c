@@ -331,6 +331,7 @@ void * find_fit(size_t asize)
 void place(void* bp, size_t asize)
 {
     /* Get the current block size */
+    fprintf(stderr, "bp: %p\n", bp);
     size_t bsize = GET_SIZE(HDRP(bp));
     PUT(HDRP(bp), PACK(bsize, 1));
     PUT(FTRP(bp), PACK(bsize, 1));
