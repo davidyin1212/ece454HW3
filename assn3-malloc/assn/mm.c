@@ -262,6 +262,8 @@ void * find_fit(size_t asize)
                 int free_size = size - asize;
                 if (size >= asize && free_size < MIN_FREE_SIZE) {
                     list_remove(p);
+                fprintf(stderr, "find_fit\n", );
+                    
                     return (void*)p;
                 }
                 else if (free_size >= MIN_FREE_SIZE) {
@@ -274,6 +276,8 @@ void * find_fit(size_t asize)
                     PUT(HDRP(free_ptr), PACK(free_size, 0));
                     PUT(FTRP(free_ptr), PACK(free_size, 0));
                     list_add(free_ptr);
+                fprintf(stderr, "find_fit\n", );
+
                     return (void*)p;
                 }    
                 p = p->next;
@@ -308,7 +312,7 @@ void place(void* bp, size_t asize)
 
   PUT(HDRP(bp), PACK(bsize, 1));
   PUT(FTRP(bp), PACK(bsize, 1));
-  fprintf(stderr, "bsize: %d asize: %d\n", bsize, asize);
+  // fprintf(stderr, "bsize: %d asize: %d\n", bsize, asize);
 
 }
 
