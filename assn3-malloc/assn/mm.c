@@ -273,26 +273,25 @@ void * find_fit(size_t asize)
     for (i = class; i < NUM_FREE_LISTS; i++) {
         if (free_lists[i] != NULL) {
             Node* free_list = free_lists[i];
-            int size = GET_SIZE(HDRP(free_list));
-            //remove it from the free list
-            if (size >= asize && size - asize < 128) {
-                remove_from_list(free_list);
-                return (void*) free_list;
-            } else if (size - asize > 128) {
-                remove_from_list(free_list);
-                void *p = (void*)free_list + asize;
+            do {
+                int size = GET_SIZE(HDRP(free_list));
+                //remove it from the free list
+                if (size >= asize && size - asize < 128) {
+                    remove_from_list(free_list);
+                    return (void*) free_list;
+                } else if (size - asize > 128) {
+                    remove_from_list(free_list);
+                    void *p = (void*)free_list + asize;
 
-                PUT(HDRP(free_list), PACK(asize, 0));
-                PUT(FTRP(free_list), PACK(asize, 0));
+                    PUT(HDRP(free_list), PACK(asize, 0));
+                    PUT(FTRP(free_list), PACK(asize, 0));
 
-                PUT(HDRP(p), PACK(size-asize,0));
-                PUT(FTRP(p), PACK(size-asize,0));
-                push(p);
-                return (void*) free_list;
-            }
-            while (free_list != free_lists[i]) {
-
-            }
+                    PUT(HDRP(p), PACK(size-asize,0));
+                    PUT(FTRP(p), PACK(size-asize,0));
+                    push(p);
+                    return (void*) free_list;
+                }
+            } while (free_list != free_lists[i]);
         }
     }
     return NULL;
@@ -337,6 +336,7 @@ void place(void* bp, size_t asize)
     size_t bsize = GET_SIZE(HDRP(bp));
     PUT(HDRP(bp), PACK(bsize, 1));
     PUT(FTRP(bp), PACK(bsize, 1));
+
     // int isHead = 0;
     // // char * pred;
     // // char * next;
