@@ -69,7 +69,7 @@ team_t team = {
 #define NEXT_FREE_BLKP(bp) ((char *) GET(bp))
 #define PREV_FREE_BLKP(bp) ((char *) GET(bp + WSIZE))
 
-#define NUM_FREE_LISTS
+#define NUM_FREE_LISTS 1
 
 typedef struct block
 {
@@ -78,7 +78,7 @@ typedef struct block
 } Node;
 
 void* heap_listp = NULL;
-Node* free_lists;
+Node* free_lists[NUM_FREE_LISTS];
 
 /**
 * List Operations
