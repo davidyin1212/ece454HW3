@@ -272,6 +272,7 @@ void *mm_malloc(size_t size)
     PUT(FTRP(bp) + DSIZE, (uintptr_t) NULL);
     fprintf(stderr, "malloc heap free_list: %s\n", (uintptr_t) free_list);
     free_list = FTRP(bp) + WSIZE;
+    fprintf(stderr, "after malloc heap free_list: %s\n", (uintptr_t) free_list);
     return bp;
 
 }
