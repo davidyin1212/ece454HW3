@@ -95,6 +95,7 @@ int get_list_class(size_t size) {
         result = 0;
     }
     result = MIN(result, NUM_FREE_LISTS - 1);
+    return result;
 }
 
 //remove element from list
