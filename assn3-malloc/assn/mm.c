@@ -150,6 +150,7 @@ void *extend_heap(size_t words)
     PUT(HDRP(bp), PACK(size, 0));                // free block header
     PUT(FTRP(bp), PACK(size, 0));                // free block footer
     PUT(HDRP(NEXT_BLKP(bp)), PACK(0, 1));        // new epilogue header
+    fprintf(stderr, "extend heap free_list: %s\n", free_list);
     PUT(HDRP(bp) + WSIZE, (uintptr_t) free_list);
     PUT(HDRP(bp) + DSIZE, (uintptr_t) NULL);
     free_list = bp;
@@ -269,6 +270,7 @@ void *mm_malloc(size_t size)
 
     PUT(FTRP(bp) + WSIZE, (uintptr_t) free_list);
     PUT(FTRP(bp) + DSIZE, (uintptr_t) NULL);
+    fprintf(stderr, "malloc heap free_list: %s\n", free_list);
     free_list = FTRP(bp) + WSIZE;
     return bp;
 
