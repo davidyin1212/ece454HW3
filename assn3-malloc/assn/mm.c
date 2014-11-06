@@ -239,8 +239,7 @@ void place(void* bp, size_t asize)
     // char * next;
     // pred = GET(HDRP(bp) + DSIZE);
     // next = GET(HDRP(bp) + WSIZE);
-    if ()
-        remove_from_list(bp);
+    remove_from_list(bp);  
 
     fprintf(stderr, "asize:%d, bsize:%d\n", asize, bsize);
 
