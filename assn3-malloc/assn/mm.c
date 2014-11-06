@@ -142,11 +142,11 @@ void remove_from_list(void *p) {
     void *next_of_pred = GET(p + WSIZE);
     fprintf(stderr, "value of pred: %p value of next: %p\n", (uintptr_t)next_of_pred, GET(p));
     if (next_of_pred != NULL) {
-        fprintf(stderr, "executing next\n", );
+        fprintf(stderr, "executing next\n");
         PUT(next_of_pred, (uintptr_t) GET(p));
     }
     if (pred_of_next != NULL) {
-        fprintf(stderr, "executing pred\n", );
+        fprintf(stderr, "executing pred\n");
         PUT(pred_of_next, (uintptr_t) GET(p + WSIZE));
     }
 }
