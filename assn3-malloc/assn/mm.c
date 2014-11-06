@@ -208,8 +208,10 @@ void place(void* bp, size_t asize)
   /* Get the current block size */
   size_t bsize = GET_SIZE(HDRP(bp));
 
-  PUT(HDRP(bp), PACK(bsize, 1));
-  PUT(FTRP(bp), PACK(bsize, 1));
+  PUT(FTRP(bp) + , PACK(bsize - asize, 0));
+  PUT(HDRP(bp), PACK(asize, 1));
+  PUT(FTRP(bp), PACK(asize, 1));
+  PUT(FTRP(bp) + WSIZE, PACK(bsize - asize, 0));
 }
 
 /**********************************************************
@@ -263,9 +265,9 @@ void *mm_malloc(size_t size)
         pred = GET(HDRP(bp) + DSIZE);
         next = GET(HDRP(bp) + WSIZE);
         place(bp, asize);
-        PUT(FTRP(bp) + WSIZE, (uintptr_t) next);
-        PUT(FTRP(bp) + DSIZE, (uintptr_t) pred);
-        free_list = FTRP(bp) + WSIZE;
+        PUT(FTRP(bp) + DSIZE, (uintptr_t) next);
+        PUT(FTRP(bp) + DSIZE + WSIZE, (uintptr_t) pred);
+        free_list = FTRP(bp) + DSIZE;
         return bp;
     }
 
@@ -277,10 +279,10 @@ void *mm_malloc(size_t size)
     next = GET(HDRP(bp) + WSIZE);
     place(bp, asize);
 
-    PUT(FTRP(bp) + WSIZE, (uintptr_t) next);
-    PUT(FTRP(bp) + DSIZE, (uintptr_t) pred);
+    PUT(FTRP(bp) + DSIZE, (uintptr_t) next);
+    PUT(FTRP(bp) + DSIZE + WSIZE, (uintptr_t) pred);
     fprintf(stderr, "malloc heap free_list: %p\n", (uintptr_t) free_list);
-    free_list = FTRP(bp) + WSIZE;
+    free_list = FTRP(bp) + DSIZE;
     fprintf(stderr, "after malloc heap free_list: %p\n", (uintptr_t) free_list);
     return bp;
 
