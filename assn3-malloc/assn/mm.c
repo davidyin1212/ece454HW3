@@ -44,6 +44,7 @@ team_t team = {
 #define CHUNKSIZE   (1<<7)      /* initial heap size (bytes) */
 
 #define MAX(x,y) ((x) > (y)?(x) :(y))
+#define MIN(x,y) ((x) < (y)?(x) :(y))
 
 /* Pack a size and allocated bit into a word */
 #define PACK(size, alloc) ((size) | (alloc))
@@ -65,11 +66,97 @@ team_t team = {
 #define PREV_BLKP(bp) ((char *)(bp) - GET_SIZE(((char *)(bp) - DSIZE)))
 
 /* Given block ptr bp, find the next and previous free blocks */ 
-#define NEXT_FREE_BLKP(bp) (GET(bp))
-#define PREV_FREE_BLKP(bp) (GET(bp + WSIZE))
+#define NEXT_FREE_BLKP(bp) ((char *) GET(bp))
+#define PREV_FREE_BLKP(bp) ((char *) GET(bp + WSIZE))
+
+#define NUM_FREE_LISTS
+
+typedef struct block
+{
+    struct block *next;
+    struct block *pred;
+} Node;
 
 void* heap_listp = NULL;
-void* free_list = NULL;
+Node* free_lists;
+
+/**
+* List Operations
+**/
+//Get approriate free list pointer
+int get_list_class(size_t size) {
+    int result = 0;
+    size--;
+    while (size != 0) {
+        size >>= 1;
+        result++;
+    }
+    if (size <= 128) {
+        result = 0;
+    }
+    result = MIN(result, NUM_FREE_LISTS - 1);
+}
+
+//remove element from list
+void remove_from_list(Node *p) {
+    if (p == NULL) {
+        return;
+    }
+    int class = get_list_class(GET_SIZE(HDRP(p)));
+    Node* free_list = free_lists[class];
+
+    if (p->next == NULL) {
+        free_list = NULL;
+    } else {
+        p->next->pred = p->pred;
+        p->pred->next = p->next;
+        if (free_list == p) {
+            free_list = p->next;
+        }   
+    }
+    // fprintf(stderr, "value of p: %p\n", (uintptr_t)p);
+    // //get p next's pred pointer
+    // void *pred_of_next = NULL;
+    // if (GET(p) != NULL)
+    //     pred_of_next = GET(p) + WSIZE;
+    // //get p pred's next pointer
+    // void *next_of_pred = GET(p + WSIZE);
+    // fprintf(stderr, "value of pred: %p value of next: %p\n", (uintptr_t)next_of_pred, GET(p));
+    // if (next_of_pred != NULL) {
+    //     fprintf(stderr, "executing next\n");
+    //     PUT(next_of_pred, (uintptr_t) GET(p));
+    // }
+    // if (pred_of_next != NULL) {
+    //     fprintf(stderr, "executing pred\n");
+    //     PUT(pred_of_next, (uintptr_t) GET(p + WSIZE));
+    // }
+}
+
+// add to front of list
+void push(void * bp) {
+    if (bp == NULL) {
+        return;
+    }
+
+    int class = get_list_class(GET_SIZE(HDRP(bp)));
+    Node* free_list = free_lists[class];
+
+    if (free_list == NULL)
+    {
+        free_list = bp;
+        bp->next = NULL;
+        bp->pred = NULL;
+    } else {
+        bp->next = free_list;
+        free_list->pred = bp;
+        bp->pred = NULL;
+        free_list = bp;
+    }
+    // void *next = bp;
+    // PUT(next, free_list);
+    // PUT(next + WSIZE, NULL);
+    // free_list = bp;
+}
 
 /**********************************************************
  * mm_init
@@ -86,6 +173,10 @@ void* free_list = NULL;
     PUT(heap_listp + (3 * WSIZE), PACK(0, 1));    // epilogue header
     heap_listp += DSIZE;
     
+    int i;
+    for (i=0; i < NUM_FREE_LISTS; i++)
+        free_lists[i] = NULL;
+
     return 0;
  }
 
@@ -108,57 +199,30 @@ void *coalesce(void *bp)
     }
 
     else if (prev_alloc && !next_alloc) { /* Case 2 */
+        remove_from_list(((Node*)NEXT_BLKP(bp));
         size += GET_SIZE(HDRP(NEXT_BLKP(bp)));
         PUT(HDRP(bp), PACK(size, 0));
         PUT(FTRP(bp), PACK(size, 0));
-        remove_from_list(NEXT_BLKP(bp));
         return (bp);
     }
 
     else if (!prev_alloc && next_alloc) { /* Case 3 */
+        remove_from_list((Node*)PREV_BLKP(bp));
         size += GET_SIZE(HDRP(PREV_BLKP(bp)));
         PUT(FTRP(bp), PACK(size, 0));
         PUT(HDRP(PREV_BLKP(bp)), PACK(size, 0));
-        remove_from_list(bp);
         return (PREV_BLKP(bp));
     }
 
     else {            /* Case 4 */
+        remove_from_list((Node*)PREV_BLKPbp);
+        remove_from_list((Node*)NEXT_BLKP(bp));
         size += GET_SIZE(HDRP(PREV_BLKP(bp)))  +
             GET_SIZE(FTRP(NEXT_BLKP(bp)))  ;
         PUT(HDRP(PREV_BLKP(bp)), PACK(size,0));
         PUT(FTRP(NEXT_BLKP(bp)), PACK(size,0));
-        remove_from_list(bp);
-        remove_from_list(NEXT_BLKP(bp));
         return (PREV_BLKP(bp));
     }
-}
-
-void remove_from_list(void *p) {
-    fprintf(stderr, "value of p: %p\n", (uintptr_t)p);
-    //get p next's pred pointer
-    void *pred_of_next = NULL;
-    if (GET(p) != NULL)
-        pred_of_next = GET(p) + WSIZE;
-    //get p pred's next pointer
-    void *next_of_pred = GET(p + WSIZE);
-    fprintf(stderr, "value of pred: %p value of next: %p\n", (uintptr_t)next_of_pred, GET(p));
-    if (next_of_pred != NULL) {
-        fprintf(stderr, "executing next\n");
-        PUT(next_of_pred, (uintptr_t) GET(p));
-    }
-    if (pred_of_next != NULL) {
-        fprintf(stderr, "executing pred\n");
-        PUT(pred_of_next, (uintptr_t) GET(p + WSIZE));
-    }
-}
-
-// add to front of list
-void push(void * bp) {
-    void *next = bp;
-    PUT(next, free_list);
-    PUT(next + WSIZE, NULL);
-    free_list = bp;
 }
 
 /**********************************************************
@@ -181,16 +245,17 @@ void *extend_heap(size_t words)
     PUT(HDRP(bp), PACK(size, 0));                // free block header
     PUT(FTRP(bp), PACK(size, 0));                // free block footer
     PUT(HDRP(NEXT_BLKP(bp)), PACK(0, 1));        // new epilogue header
-    fprintf(stderr, "allocated this much space: %d\n", size);
-    fprintf(stderr, "extend heap free_list: %p\n", (uintptr_t) free_list);
-    fprintf(stderr, "extend heap bp: %p\n", (uintptr_t) bp);
-    PUT(HDRP(bp) + WSIZE, (uintptr_t) free_list);
-    PUT(HDRP(bp) + DSIZE, (uintptr_t) NULL);
-    free_list = bp;
+    // fprintf(stderr, "allocated this much space: %d\n", size);
+    // fprintf(stderr, "extend heap free_list: %p\n", (uintptr_t) free_list);
+    // fprintf(stderr, "extend heap bp: %p\n", (uintptr_t) bp);
+    // PUT(HDRP(bp) + WSIZE, (uintptr_t) free_list);
+    // PUT(HDRP(bp) + DSIZE, (uintptr_t) NULL);
+    // free_list = bp;
 
 
     /* Coalesce if the previous block was free */
-    return coalesce(bp);
+    // return coalesce(bp);
+    return bp;
 }
 
 
