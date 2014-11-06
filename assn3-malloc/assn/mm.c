@@ -264,7 +264,7 @@ void *mm_malloc(size_t size)
     else
         asize = DSIZE * ((size + (DSIZE) + (DSIZE-1))/ DSIZE);
 
-    fprintf(stderr, "malloc size: \n", asize);
+    fprintf(stderr, "malloc size: %d\n", asize);
     /* Search the free list for a fit */
     if ((bp = find_fit(asize)) != NULL) {
         pred = GET(HDRP(bp) + DSIZE);
