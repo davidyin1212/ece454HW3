@@ -262,6 +262,7 @@ void place(void* bp, size_t asize)
     PUT(FTRP(bp) + WSIZE, PACK(bsize - asize, 0));
     // free_list = FTRP(bp) + DSIZE;
 
+    fprintf(stderr, "isHead: %d\n", isHead);
     //insert free left back in at head of list
     if (bsize - asize > 0 && isHead != 1) {
         push(FTRP(bp) + DSIZE);
