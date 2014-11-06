@@ -331,7 +331,7 @@ void * find_fit(size_t asize)
 void place(void* bp, size_t asize)
 {
     /* Get the current block size */
-    fprintf(stderr, "bp: %p\n", bp);
+    fprintf(stderr, "bp: %d\n", HDRP(bp));
     size_t bsize = GET_SIZE(HDRP(bp));
     PUT(HDRP(bp), PACK(bsize, 1));
     PUT(FTRP(bp), PACK(bsize, 1));
@@ -420,7 +420,7 @@ void mm_free(void *bp)
 void *mm_malloc(size_t size)
 {
     size_t asize; /* adjusted block size */
-    size_t extendsize; /* amount to extend heap if no fit */
+    // size_t extendsize; /* amount to extend heap if no fit */
     char * bp;
 
     /* Ignore spurious requests */
@@ -450,10 +450,10 @@ void *mm_malloc(size_t size)
     }
 
     /* No fit found. Get more memory and place the block */
-    extendsize = MAX(asize, CHUNKSIZE);
-    if ((bp = extend_heap(extendsize/WSIZE)) == NULL)
+    // extendsize = MAX(asize, CHUNKSIZE);
+    if ((bp = extend_heap(asize/WSIZE)) == NULL)
         return NULL;
-        place(bp, asize);
+    place(bp, asize);
 
     // PUT(FTRP(bp) + DSIZE, (uintptr_t) next);
     // PUT(FTRP(bp) + DSIZE + WSIZE, (uintptr_t) pred);
