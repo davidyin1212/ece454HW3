@@ -154,7 +154,7 @@ void *extend_heap(size_t words)
     fprintf(stderr, "extend heap bp: %p\n", (uintptr_t) bp);
     PUT(HDRP(bp) + WSIZE, (uintptr_t) free_list);
     PUT(HDRP(bp) + DSIZE, (uintptr_t) NULL);
-    free_list = bp;
+    // free_list = bp;
 
 
     /* Coalesce if the previous block was free */
@@ -186,7 +186,7 @@ void * find_fit(size_t asize)
     fprintf(stderr, "next free blk: %p\n", (uintptr_t) NEXT_FREE_BLKP(free_list));
     fprintf(stderr, "free_list: %p\n", (uintptr_t) free_list);
     fprintf(stderr, "size: %d\n", (uintptr_t) GET_SIZE(HDRP(free_list)));
-    fprintf(stderr, "size: %d\n", (uintptr_t) asize);
+    fprintf(stderr, "asize: %d\n", (uintptr_t) asize);
 
     for (bp = (void *) free_list; GET_SIZE(HDRP(bp)) > 0; bp = (void *) NEXT_FREE_BLKP(bp))
     {
@@ -244,6 +244,8 @@ void *mm_malloc(size_t size)
     size_t asize; /* adjusted block size */
     size_t extendsize; /* amount to extend heap if no fit */
     char * bp;
+    char * pred;
+    char * next;
 
     /* Ignore spurious requests */
     if (size == 0)
@@ -257,9 +259,11 @@ void *mm_malloc(size_t size)
 
     /* Search the free list for a fit */
     if ((bp = find_fit(asize)) != NULL) {
+        pred = GET(HDRP(bp) + DSIZE);
+        next = GET(HDRP(bp) + WSIZE);
         place(bp, asize);
-        PUT(FTRP(bp) + WSIZE, (uintptr_t) free_list);
-        PUT(FTRP(bp) + DSIZE, (uintptr_t) NULL);
+        PUT(FTRP(bp) + WSIZE, (uintptr_t) next);
+        PUT(FTRP(bp) + DSIZE, (uintptr_t) pred);
         free_list = FTRP(bp) + WSIZE;
         return bp;
     }
@@ -268,10 +272,12 @@ void *mm_malloc(size_t size)
     extendsize = MAX(asize, CHUNKSIZE);
     if ((bp = extend_heap(extendsize/WSIZE)) == NULL)
         return NULL;
+    pred = GET(HDRP(bp) + DSIZE);
+    next = GET(HDRP(bp) + WSIZE);
     place(bp, asize);
 
-    PUT(FTRP(bp) + WSIZE, (uintptr_t) free_list);
-    PUT(FTRP(bp) + DSIZE, (uintptr_t) NULL);
+    PUT(FTRP(bp) + WSIZE, (uintptr_t) next);
+    PUT(FTRP(bp) + DSIZE, (uintptr_t) pred);
     fprintf(stderr, "malloc heap free_list: %p\n", (uintptr_t) free_list);
     free_list = FTRP(bp) + WSIZE;
     fprintf(stderr, "after malloc heap free_list: %p\n", (uintptr_t) free_list);
