@@ -111,6 +111,7 @@ void *coalesce(void *bp)
         size += GET_SIZE(HDRP(NEXT_BLKP(bp)));
         PUT(HDRP(bp), PACK(size, 0));
         PUT(FTRP(bp), PACK(size, 0));
+        remove_from_list(NEXT_BLKP(bp));
         return (bp);
     }
 
@@ -118,6 +119,7 @@ void *coalesce(void *bp)
         size += GET_SIZE(HDRP(PREV_BLKP(bp)));
         PUT(FTRP(bp), PACK(size, 0));
         PUT(HDRP(PREV_BLKP(bp)), PACK(size, 0));
+        remove_from_list(bp);
         return (PREV_BLKP(bp));
     }
 
@@ -126,8 +128,19 @@ void *coalesce(void *bp)
             GET_SIZE(FTRP(NEXT_BLKP(bp)))  ;
         PUT(HDRP(PREV_BLKP(bp)), PACK(size,0));
         PUT(FTRP(NEXT_BLKP(bp)), PACK(size,0));
+        remove_from_list(bp);
+        remove_from_list(NEXT_BLKP(bp));
         return (PREV_BLKP(bp));
     }
+}
+
+void remove_from_list(void *p) {
+    //get p next's pred pointer
+    void *pred_of_next = GET(HDRP(GET(HDRP(p) + WSIZE)) + DSIZE);
+    //get p pred's next pointer
+    void *next_of_pred = GET(HDRP(GET(HDRP(p) + DSIZE)) + WSIZE);
+    PUT(next_of_pred, GET(HDRP(p) + WSIZE));
+    PUT(pred_of_next, GET(HDRP(p) + DSIZE));
 }
 
 /**********************************************************
