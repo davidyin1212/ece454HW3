@@ -207,15 +207,26 @@ void * find_fit(size_t asize)
  **********************************************************/
 void place(void* bp, size_t asize)
 {
-  /* Get the current block size */
-  size_t bsize = GET_SIZE(HDRP(bp));
+    /* Get the current block size */
+    size_t bsize = GET_SIZE(HDRP(bp));
 
-  fprintf(stderr, "asize:%d, bsize:%d\n", asize, bsize);
+    char * pred;
+    char * next;
+    pred = GET(HDRP(bp) + DSIZE);
+    next = GET(HDRP(bp) + WSIZE);
 
-  PUT(FTRP(bp), PACK(bsize - asize, 0));
-  PUT(HDRP(bp), PACK(asize, 1));
-  PUT(FTRP(bp), PACK(asize, 1));
-  PUT(FTRP(bp) + WSIZE, PACK(bsize - asize, 0));
+    fprintf(stderr, "asize:%d, bsize:%d\n", asize, bsize);
+
+    PUT(FTRP(bp), PACK(bsize - asize, 0));
+    PUT(HDRP(bp), PACK(asize, 1));
+    PUT(FTRP(bp), PACK(asize, 1));
+    PUT(FTRP(bp) + WSIZE, PACK(bsize - asize, 0));
+
+    if (bsize - asize > 0) {
+        PUT(FTRP(bp) + DSIZE, (uintptr_t) next);
+        PUT(FTRP(bp) + DSIZE + WSIZE, (uintptr_t) pred);
+        free_list = FTRP(bp) + DSIZE;
+    }
 }
 
 /**********************************************************
@@ -251,8 +262,6 @@ void *mm_malloc(size_t size)
     size_t asize; /* adjusted block size */
     size_t extendsize; /* amount to extend heap if no fit */
     char * bp;
-    char * pred;
-    char * next;
 
     /* Ignore spurious requests */
     if (size == 0)
@@ -267,12 +276,8 @@ void *mm_malloc(size_t size)
     fprintf(stderr, "------------------malloc size: %d\n", asize);
     /* Search the free list for a fit */
     if ((bp = find_fit(asize)) != NULL) {
-        pred = GET(HDRP(bp) + DSIZE);
-        next = GET(HDRP(bp) + WSIZE);
+        
         place(bp, asize);
-        PUT(FTRP(bp) + DSIZE, (uintptr_t) next);
-        PUT(FTRP(bp) + DSIZE + WSIZE, (uintptr_t) pred);
-        free_list = FTRP(bp) + DSIZE;
         return bp;
     }
 
@@ -280,15 +285,13 @@ void *mm_malloc(size_t size)
     extendsize = MAX(asize, CHUNKSIZE);
     if ((bp = extend_heap(extendsize/WSIZE)) == NULL)
         return NULL;
-    pred = GET(HDRP(bp) + DSIZE);
-    next = GET(HDRP(bp) + WSIZE);
-    place(bp, asize);
+        place(bp, asize);
 
-    PUT(FTRP(bp) + DSIZE, (uintptr_t) next);
-    PUT(FTRP(bp) + DSIZE + WSIZE, (uintptr_t) pred);
-    fprintf(stderr, "malloc heap free_list: %p\n", (uintptr_t) free_list);
-    free_list = FTRP(bp) + DSIZE;
-    fprintf(stderr, "after malloc heap free_list: %p\n", (uintptr_t) free_list);
+    // PUT(FTRP(bp) + DSIZE, (uintptr_t) next);
+    // PUT(FTRP(bp) + DSIZE + WSIZE, (uintptr_t) pred);
+    // fprintf(stderr, "malloc heap free_list: %p\n", (uintptr_t) free_list);
+    // free_list = FTRP(bp) + DSIZE;
+    // fprintf(stderr, "after malloc heap free_list: %p\n", (uintptr_t) free_list);
     return bp;
 
 }
