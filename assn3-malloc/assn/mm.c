@@ -133,7 +133,7 @@ void remove_from_list(Node *p) {
 }
 
 // add to front of list
-void push(void * bp) {
+void push(Node * bp) {
     if (bp == NULL) {
         return;
     }
@@ -199,7 +199,7 @@ void *coalesce(void *bp)
     }
 
     else if (prev_alloc && !next_alloc) { /* Case 2 */
-        remove_from_list(((Node*)NEXT_BLKP(bp));
+        remove_from_list((Node*)NEXT_BLKP(bp));
         size += GET_SIZE(HDRP(NEXT_BLKP(bp)));
         PUT(HDRP(bp), PACK(size, 0));
         PUT(FTRP(bp), PACK(size, 0));
@@ -215,7 +215,7 @@ void *coalesce(void *bp)
     }
 
     else {            /* Case 4 */
-        remove_from_list((Node*)PREV_BLKPbp);
+        remove_from_list((Node*)PREV_BLKP(bp));
         remove_from_list((Node*)NEXT_BLKP(bp));
         size += GET_SIZE(HDRP(PREV_BLKP(bp)))  +
             GET_SIZE(FTRP(NEXT_BLKP(bp)))  ;
