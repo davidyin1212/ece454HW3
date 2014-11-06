@@ -210,6 +210,8 @@ void place(void* bp, size_t asize)
   /* Get the current block size */
   size_t bsize = GET_SIZE(HDRP(bp));
 
+  fprintf(stderr, "asize:%d, bsize:%d\n", asize, bsize);
+
   PUT(FTRP(bp), PACK(bsize - asize, 0));
   PUT(HDRP(bp), PACK(asize, 1));
   PUT(FTRP(bp), PACK(asize, 1));
