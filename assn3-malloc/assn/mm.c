@@ -251,12 +251,29 @@ void place(void* bp, size_t asize)
 
     //check to see if not already head of list
     if (GET(bp + WSIZE) == NULL) {
-        isHead = 1;
-        free_list = GET(bp);
+        // isHead = 1;
+        free_list = NULL;
     }
 
-    if (GET(bp) != NULL)
-        fprintf(stderr, "again next: %p, pred: %p\n", GET(bp), GET(GET(bp) + WSIZE));
+    // if (GET(bp) != NULL)
+    //     fprintf(stderr, "again next: %p, pred: %p\n", GET(bp), GET(GET(bp) + WSIZE));
+
+    //add to front of list
+    fprintf(stderr, "isHead: %d\n", isHead);
+    //insert free left back in at head of list
+    // if (bsize - asize > 0 && isHead != 1) {
+    //     push(FTRP(bp) + DSIZE);
+    //     // PUT(FTRP(bp) + DSIZE, (uintptr_t) next);
+    //     // PUT(FTRP(bp) + DSIZE + WSIZE, (uintptr_t) pred);
+    //     // free_list = FTRP(bp) + DSIZE;
+    // } else if (isHead == 1) {
+    //     PUT(FTRP(bp) + DSIZE, free_list);
+    //     PUT(FTRP(bp) + DSIZE + WSIZE, NULL);
+    //     free_list = FTRP(bp) + DSIZE;
+    // } 
+    // if (bsize - asize == 0) {
+    //     free_list = NULL;
+    // }
 
     //split
     PUT(FTRP(bp), PACK(bsize - asize, 0));
@@ -265,20 +282,13 @@ void place(void* bp, size_t asize)
     PUT(FTRP(bp) + WSIZE, PACK(bsize - asize, 0));
     // free_list = FTRP(bp) + DSIZE;
 
-    fprintf(stderr, "isHead: %d\n", isHead);
-    //insert free left back in at head of list
-    if (bsize - asize > 0 && isHead != 1) {
+    if (bsize - asize != 0) {
         push(FTRP(bp) + DSIZE);
         // PUT(FTRP(bp) + DSIZE, (uintptr_t) next);
         // PUT(FTRP(bp) + DSIZE + WSIZE, (uintptr_t) pred);
         // free_list = FTRP(bp) + DSIZE;
-    } else if (isHead == 1) {
-        PUT(FTRP(bp) + DSIZE, free_list);
-        PUT(FTRP(bp) + DSIZE + WSIZE, NULL);
-        free_list = FTRP(bp) + DSIZE;
-    } 
-    if (bsize - asize == 0) {
-        free_list = NULL;
+    } else {
+        free_list == NULL;
     }
 }
 
