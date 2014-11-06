@@ -333,10 +333,10 @@ void * find_fit(size_t asize)
 void place(void* bp, size_t asize)
 {
     /* Get the current block size */
-    // fprintf(stderr, "bp: %d\n", GET_SIZE(HDRP(bp)));
     size_t bsize = GET_SIZE(HDRP(bp));
     PUT(HDRP(bp), PACK(bsize, 1));
     PUT(FTRP(bp), PACK(bsize, 1));
+    fprintf(stderr, "bsize: %d asize: %d\n", bsize, asize);
 
     // int isHead = 0;
     // // char * pred;
@@ -456,7 +456,6 @@ void *mm_malloc(size_t size)
     // extendsize = MAX(asize, CHUNKSIZE);
     if ((bp = extend_heap(asize/WSIZE)) == NULL)
         return NULL;
-    fprintf(stderr, "extend_heap\n");
     place(bp, asize);
 
     // PUT(FTRP(bp) + DSIZE, (uintptr_t) next);
