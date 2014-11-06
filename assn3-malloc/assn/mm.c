@@ -139,7 +139,7 @@ void remove_from_list(void *p) {
     //get p next's pred pointer
     void *pred_of_next = NULL;
     if (GET(p) != NULL)
-        *pred_of_next = GET(p) + WSIZE;
+        pred_of_next = GET(p) + WSIZE;
     //get p pred's next pointer
     void *next_of_pred = GET(p + WSIZE);
     fprintf(stderr, "value of pred: %p value of next: %p\n", (uintptr_t)next_of_pred, GET(p));
