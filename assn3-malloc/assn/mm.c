@@ -308,6 +308,8 @@ void place(void* bp, size_t asize)
 
   PUT(HDRP(bp), PACK(bsize, 1));
   PUT(FTRP(bp), PACK(bsize, 1));
+  fprintf(stderr, "bsize: %d asize: %d\n", bsize, asize);
+
 }
 
 /**********************************************************
