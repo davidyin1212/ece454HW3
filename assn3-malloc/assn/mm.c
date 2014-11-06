@@ -273,7 +273,7 @@ void place(void* bp, size_t asize)
         PUT(FTRP(bp) + DSIZE + WSIZE, NULL);
         free_list = FTRP(bp) + DSIZE;
     } 
-    if (bsize - asize < 128) {
+    if (bsize - asize == 0) {
         free_list = NULL;
     }
 }
