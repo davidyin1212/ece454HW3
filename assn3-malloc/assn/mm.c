@@ -135,6 +135,7 @@ void *coalesce(void *bp)
 }
 
 void remove_from_list(void *p) {
+    fprintf(stderr, "vlaue of p: %p\n", (uintptr_t)p);
     //get p next's pred pointer
     void *pred_of_next = GET(p) + WSIZE;
     //get p pred's next pointer
