@@ -256,7 +256,7 @@ void place(void* bp, size_t asize)
     }
 
     if (GET(bp) != NULL)
-        fprintf(stderr, "next: %p, pred: %p\n", GET(bp), GET(GET(bp) + WSIZE));
+        fprintf(stderr, "again next: %p, pred: %p\n", GET(bp), GET(GET(bp) + WSIZE));
 
     //split
     PUT(FTRP(bp), PACK(bsize - asize, 0));
