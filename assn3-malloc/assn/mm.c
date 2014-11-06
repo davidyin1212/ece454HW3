@@ -186,6 +186,7 @@ void * find_fit(size_t asize)
     fprintf(stderr, "next free blk: %p\n", (uintptr_t) NEXT_FREE_BLKP(free_list));
     fprintf(stderr, "free_list: %p\n", (uintptr_t) free_list);
     fprintf(stderr, "size: %d\n", (uintptr_t) GET_SIZE(HDRP(free_list)));
+    fprintf(stderr, "size: %d\n", (uintptr_t) asize);
 
     for (bp = (void *) free_list; GET_SIZE(HDRP(bp)) > 0; bp = (void *) NEXT_FREE_BLKP(bp))
     {
