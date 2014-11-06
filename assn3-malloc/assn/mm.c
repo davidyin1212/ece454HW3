@@ -150,7 +150,7 @@ void *extend_heap(size_t words)
     PUT(HDRP(bp), PACK(size, 0));                // free block header
     PUT(FTRP(bp), PACK(size, 0));                // free block footer
     PUT(HDRP(NEXT_BLKP(bp)), PACK(0, 1));        // new epilogue header
-    fprintf(stderr, "allocated this much space: %d\n", size);
+    fprintf(stderr, "allocated this much space: %d\n", size/);
     fprintf(stderr, "extend heap free_list: %p\n", (uintptr_t) free_list);
     fprintf(stderr, "extend heap bp: %p\n", (uintptr_t) bp);
     PUT(HDRP(bp) + WSIZE, (uintptr_t) free_list);
@@ -190,7 +190,7 @@ void * find_fit(size_t asize)
     fprintf(stderr, "asize: %d\n", (uintptr_t) asize);
     fprintf(stderr, "is allocated: %d\n", GET_ALLOC(HDRP(free_list)));
 
-    for (bp = (void *) free_list; GET_SIZE(HDRP(bp)) > 0; bp = (void *) NEXT_FREE_BLKP(bp))
+    for (bp = (void *) free_list; bp != NULL; bp = (void *) NEXT_FREE_BLKP(bp))
     {
         if (!GET_ALLOC(HDRP(bp)) && (asize <= GET_SIZE(HDRP(bp))))
         {
