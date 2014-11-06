@@ -255,6 +255,8 @@ void place(void* bp, size_t asize)
         free_list = GET(bp);
     }
 
+    fprintf(stderr, "next: %p, pred: %p\n", GET(bp), GET(bp + WSIZE));
+
     //split
     PUT(FTRP(bp), PACK(bsize - asize, 0));
     PUT(HDRP(bp), PACK(asize, 1));
