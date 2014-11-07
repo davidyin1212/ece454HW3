@@ -515,7 +515,7 @@ void *mm_realloc(void *ptr, size_t size)
             
             PUT(HDRP(free_ptr), PACK(free_size, 0));
             PUT(FTRP(free_ptr), PACK(free_size, 0));
-            list_add(free_ptr);
+            push(free_ptr);
         }
         return ptr;
     }
@@ -537,7 +537,7 @@ void *mm_realloc(void *ptr, size_t size)
                 PUT(FTRP(coal_ptr), PACK(asize, 1));
                 PUT(HDRP(free_ptr), PACK(free_size, 0));
                 PUT(FTRP(free_ptr), PACK(free_size, 0));
-                list_add(free_ptr);
+                push(free_ptr);
                 
             }
             else {
@@ -558,7 +558,7 @@ void *mm_realloc(void *ptr, size_t size)
             /* Copy the old data. */
             memcpy(new_ptr, ptr, old_size - DSIZE);
             
-            list_add((Node*)coal_ptr); 
+            push((Node*)coal_ptr); 
             return new_ptr;
         }
     }
