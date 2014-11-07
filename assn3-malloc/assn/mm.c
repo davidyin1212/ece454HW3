@@ -140,21 +140,21 @@ void push(Node * bp) {
     }
     int class = get_list_class(GET_SIZE(HDRP(bp)));
     // fprintf(stderr, "class: %d\n", GET_SIZE(HDRP(bp)));
-    Node* free_list = free_lists[class];
+    // Node* free_list = free_lists[class];
 
     if (free_list == NULL)
     {
-        free_list = bp;
+        free_lists[class] = bp;
         bp->next = NULL;
         bp->pred = NULL;
-        fprintf(stderr, "set free_list value: %p\n", free_list);
-        fprintf(stderr, "set free_lists value: %p\n", free_list[class]);  
+        // fprintf(stderr, "set free_list value: %p\n", free_list);
+        // fprintf(stderr, "set free_lists value: %p\n", free_list[class]);  
     } else {
-        fprintf(stderr, "free list is not null\n");
-        bp->next = free_list;
-        free_list->pred = bp;
+        // fprintf(stderr, "free list is not null\n");
+        bp->next = free_lists[class];
+        free_lists[class]->pred = bp;
         bp->pred = NULL;
-        free_list = bp;
+        free_lists[class] = bp;
     }
     // void *next = bp;
     // PUT(next, free_list);
