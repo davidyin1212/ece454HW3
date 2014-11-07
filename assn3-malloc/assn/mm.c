@@ -144,6 +144,7 @@ void push(Node * bp) {
 
     if (free_list == NULL)
     {
+        fprintf(stderr, "set free_list value: %p\n", bp);
         free_list = bp;
         bp->next = NULL;
         bp->pred = NULL;
