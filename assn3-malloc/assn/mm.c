@@ -399,7 +399,7 @@ void place(void* bp, size_t asize)
  **********************************************************/
 void mm_free(void *bp)
 {
-    fprintf(stderr, "----------------freee timeeeee\n");
+    fprintf(stderr, "free_lists: %p", free_lists[0]);
     if(bp == NULL){
       return;
     }
