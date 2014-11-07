@@ -149,6 +149,7 @@ void push(Node * bp) {
         bp->next = NULL;
         bp->pred = NULL;
     } else {
+        fprintf(stderr, "free list is not null\n");
         bp->next = free_list;
         free_list->pred = bp;
         bp->pred = NULL;
@@ -197,7 +198,7 @@ void *coalesce(void *bp)
     size_t size = GET_SIZE(HDRP(bp));
 
     if (prev_alloc && next_alloc) {       /* Case 1 */
-        fprintf(stderr, "both allocated\n");
+        // fprintf(stderr, "both allocated\n");
         return bp;
     }
 
@@ -206,8 +207,7 @@ void *coalesce(void *bp)
         size += GET_SIZE(HDRP(NEXT_BLKP(bp)));
         PUT(HDRP(bp), PACK(size, 0));
         PUT(FTRP(bp), PACK(size, 0));
-        fprintf(stderr, "prev allocated\n");
-
+        // fprintf(stderr, "prev allocated\n");
         return (bp);
     }
 
@@ -216,8 +216,7 @@ void *coalesce(void *bp)
         size += GET_SIZE(HDRP(PREV_BLKP(bp)));
         PUT(FTRP(bp), PACK(size, 0));
         PUT(HDRP(PREV_BLKP(bp)), PACK(size, 0));
-        fprintf(stderr, "next allocated\n");
-
+        // fprintf(stderr, "next allocated\n");
         return (PREV_BLKP(bp));
     }
 
@@ -228,8 +227,7 @@ void *coalesce(void *bp)
             GET_SIZE(FTRP(NEXT_BLKP(bp)))  ;
         PUT(HDRP(PREV_BLKP(bp)), PACK(size,0));
         PUT(FTRP(NEXT_BLKP(bp)), PACK(size,0));
-        fprintf(stderr, "none allocated\n");
-
+        // fprintf(stderr, "none allocated\n");
         return (PREV_BLKP(bp));
     }
 }
@@ -408,7 +406,7 @@ void place(void* bp, size_t asize)
  **********************************************************/
 void mm_free(void *bp)
 {
-    fprintf(stderr, "free\n");
+    // fprintf(stderr, "free\n");
     if(bp == NULL){
       return;
     }
