@@ -155,7 +155,7 @@ void push(Node * bp) {
         bp->next = free_lists[class];
         free_lists[class]->pred = bp;
         bp->pred = NULL;
-        free_lists[class] = bp;
+        // free_lists[class] = bp;
     }
     // void *next = bp;
     // PUT(next, free_list);
@@ -304,7 +304,7 @@ void * find_fit(size_t asize)
                     return (void*) free_list;
                 }
                 free_list = free_list->next;
-            } while (free_list != free_lists[i]);
+            } while (free_list != NULL);
         }
     }
     return NULL;
