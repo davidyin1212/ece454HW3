@@ -485,13 +485,13 @@ void *mm_realloc(void *ptr, size_t size)
     if (ptr == NULL)
       return (mm_malloc(size));
 
-    void *coal_ptr
+    void *coal_ptr;
     void *oldptr = ptr;
-    void *newptr;
+    void *new_ptr;
     size_t asize;
-    size_t oldsize;
+    size_t old_size;
     size_t coal_size;
-    size_t copySize;
+    size_t copy_size;
 
     /* Adjust block size to include overhead and alignment reqs. */
     if (size <= DSIZE)
