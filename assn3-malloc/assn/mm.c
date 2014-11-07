@@ -104,15 +104,15 @@ void remove_from_list(Node *p) {
         return;
     }
     int class = get_list_class(GET_SIZE(HDRP(p)));
-    Node* free_list = free_lists[class];
+    // Node* free_list = free_lists[class];
 
     if (p->next == NULL) {
-        free_list = NULL;
+        free_lists[class] = NULL;
     } else {
         p->next->pred = p->pred;
         p->pred->next = p->next;
-        if (free_list == p) {
-            free_list = p->next;
+        if (free_lists[class] == p) {
+            free_lists[class] = p->next;
         }   
     }
     // fprintf(stderr, "value of p: %p\n", (uintptr_t)p);
