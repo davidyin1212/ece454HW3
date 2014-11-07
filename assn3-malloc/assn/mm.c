@@ -408,7 +408,7 @@ void place(void* bp, size_t asize)
  **********************************************************/
 void mm_free(void *bp)
 {
-    fprintf(stderr, "free\n");
+    // fprintf(stderr, "free\n");
     if(bp == NULL){
       return;
     }
