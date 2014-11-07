@@ -107,7 +107,7 @@ void remove_from_list(Node *p) {
     Node* free_list = free_lists[class];
 
     if (p->next == NULL) {
-        // free_list = NULL;
+        free_list = NULL;
     } else {
         p->next->pred = p->pred;
         p->pred->next = p->next;
@@ -144,10 +144,11 @@ void push(Node * bp) {
 
     if (free_list == NULL)
     {
-        // fprintf(stderr, "set free_list value: %p\n", bp);
         free_list = bp;
         bp->next = NULL;
         bp->pred = NULL;
+        fprintf(stderr, "set free_list value: %p\n", free_list);
+        fprintf(stderr, "set free_lists value: %p\n", free_list[class]);  
     } else {
         fprintf(stderr, "free list is not null\n");
         bp->next = free_list;
