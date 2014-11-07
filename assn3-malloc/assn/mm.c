@@ -214,7 +214,7 @@ void *coalesce(void *bp)
     }
 
     else if (!prev_alloc && next_alloc) { /* Case 3 */
-        remove_from_list((Node*)PREV_BLKP(bp));
+        remove_from_list((Node*)(bp));
         size += GET_SIZE(HDRP(PREV_BLKP(bp)));
         PUT(FTRP(bp), PACK(size, 0));
         PUT(HDRP(PREV_BLKP(bp)), PACK(size, 0));
@@ -223,7 +223,7 @@ void *coalesce(void *bp)
     }
 
     else {            /* Case 4 */
-        remove_from_list((Node*)PREV_BLKP(bp));
+        remove_from_list((Node*)(bp));
         remove_from_list((Node*)NEXT_BLKP(bp));
         size += GET_SIZE(HDRP(PREV_BLKP(bp)))  +
             GET_SIZE(FTRP(NEXT_BLKP(bp)))  ;
