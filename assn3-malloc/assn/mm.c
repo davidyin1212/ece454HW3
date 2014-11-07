@@ -142,7 +142,7 @@ void push(Node * bp) {
     // fprintf(stderr, "class: %d\n", GET_SIZE(HDRP(bp)));
     // Node* free_list = free_lists[class];
 
-    if (free_list == NULL)
+    if (free_list[class] == NULL)
     {
         free_lists[class] = bp;
         bp->next = NULL;
