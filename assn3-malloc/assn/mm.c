@@ -197,6 +197,7 @@ void *coalesce(void *bp)
     size_t size = GET_SIZE(HDRP(bp));
 
     if (prev_alloc && next_alloc) {       /* Case 1 */
+        fprintf(stderr, "both allocated\n");
         return bp;
     }
 
@@ -257,6 +258,7 @@ void *extend_heap(size_t words)
 
     /* Coalesce if the previous block was free */
     // return coalesce(bp);
+    // push(bp);
     return bp;
 }
 
@@ -339,8 +341,7 @@ void place(void* bp, size_t asize)
     size_t bsize = GET_SIZE(HDRP(bp));
     PUT(HDRP(bp), PACK(bsize, 1));
     PUT(FTRP(bp), PACK(bsize, 1));
-    fprintf(stderr, "free_lists: %p", free_lists[0]);
-    
+
     // fprintf(stderr, "bsize: %d asize: %d\n", bsize, asize);
 
     // int isHead = 0;
