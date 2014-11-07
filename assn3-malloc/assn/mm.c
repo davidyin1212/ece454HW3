@@ -254,17 +254,6 @@ void *extend_heap(size_t words)
     PUT(HDRP(bp), PACK(size, 0));                // free block header
     PUT(FTRP(bp), PACK(size, 0));                // free block footer
     PUT(HDRP(NEXT_BLKP(bp)), PACK(0, 1));        // new epilogue header
-    // fprintf(stderr, "allocated this much space: %d\n", size);
-    // fprintf(stderr, "extend heap free_list: %p\n", (uintptr_t) free_list);
-    // fprintf(stderr, "extend heap bp: %p\n", (uintptr_t) bp);
-    // PUT(HDRP(bp) + WSIZE, (uintptr_t) free_list);
-    // PUT(HDRP(bp) + DSIZE, (uintptr_t) NULL);
-    // free_list = bp;
-
-
-    /* Coalesce if the previous block was free */
-    // return coalesce(bp);
-    // push(bp);
     return bp;
 }
 
@@ -285,12 +274,13 @@ void * find_fit(size_t asize)
             do {
                 // fprintf(stderr, "find_fit\n");
                 int size = GET_SIZE(HDRP(free_list));
+                free_size = size - asize;
                 //remove it from the free list
-                if (size >= asize && size - asize < 32) {
+                if (size >= asize && free_size < 32) {
                     // fprintf(stderr, "small find_fit\n");
                     remove_from_list(free_list);
                     return (void*) free_list;
-                } else if (size - asize > 32) {
+                } else if (free_size >= 32) {
                     // fprintf(stderr, "larger find_fit\n");
                     remove_from_list(free_list);
                     void *p = (void*)free_list + asize;
