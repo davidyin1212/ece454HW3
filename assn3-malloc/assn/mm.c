@@ -303,6 +303,7 @@ void * find_fit(size_t asize)
                     push(p);
                     return (void*) free_list;
                 }
+                free_list = free_list->next;
             } while (free_list != free_lists[i]);
         }
     }
