@@ -485,21 +485,96 @@ void *mm_realloc(void *ptr, size_t size)
     if (ptr == NULL)
       return (mm_malloc(size));
 
+    void *coal_ptr
     void *oldptr = ptr;
     void *newptr;
+    size_t asize;
+    size_t oldsize;
+    size_t coal_size;
     size_t copySize;
 
-    newptr = mm_malloc(size);
-    if (newptr == NULL)
-      return NULL;
+    /* Adjust block size to include overhead and alignment reqs. */
+    if (size <= DSIZE)
+        asize = 2 * DSIZE;
+    else
+        asize = DSIZE * ((size + (DSIZE) + (DSIZE-1))/ DSIZE);
 
-    /* Copy the old data. */
-    copySize = GET_SIZE(HDRP(oldptr));
-    if (size < copySize)
-      copySize = size;
-    memcpy(newptr, oldptr, copySize);
-    mm_free(oldptr);
-    return newptr;
+    old_size = GET_SIZE(HDRP(ptr));
+    
+    if (asize == old_size)
+        return ptr;
+    
+    // shrinking
+    else if (asize < old_size) { 
+        int free_size = old_size - asize;
+        if (free_size >= MIN_FREE_SIZE) {
+            void* free_ptr = (void*)ptr + asize;
+            
+            PUT(HDRP(ptr), PACK(asize, 1));
+            PUT(FTRP(ptr), PACK(asize, 1));
+            
+            PUT(HDRP(free_ptr), PACK(free_size, 0));
+            PUT(FTRP(free_ptr), PACK(free_size, 0));
+            list_add(free_ptr);
+        }
+        return ptr;
+    }
+    
+    // expanding
+    else {
+        PUT(HDRP(ptr), PACK(old_size, 0));
+        PUT(FTRP(ptr), PACK(old_size, 0));
+        coal_ptr = coalesce(ptr);
+        coal_size = GET_SIZE(HDRP(coal_ptr));
+        
+        // new size fits in coalesced block
+        if (coal_size >= asize) {
+            int free_size = coal_size - asize;
+            if (free_size >= MIN_FREE_SIZE) {
+                void* free_ptr = (void*)coal_ptr + asize;
+                memmove(coal_ptr, ptr, old_size - DSIZE);
+                PUT(HDRP(coal_ptr), PACK(asize, 1));
+                PUT(FTRP(coal_ptr), PACK(asize, 1));
+                PUT(HDRP(free_ptr), PACK(free_size, 0));
+                PUT(FTRP(free_ptr), PACK(free_size, 0));
+                list_add(free_ptr);
+                
+            }
+            else {
+                memmove(coal_ptr, ptr, old_size - DSIZE);
+                PUT(HDRP(coal_ptr), PACK(coal_size, 1));
+                PUT(FTRP(coal_ptr), PACK(coal_size, 1));
+            }
+            return coal_ptr;
+        }
+
+        // new size does not fit in coalesced block
+        else {
+            
+            
+            new_ptr = mm_malloc(size);
+            if (new_ptr == NULL)
+              return NULL;
+            /* Copy the old data. */
+            memcpy(new_ptr, ptr, old_size - DSIZE);
+            
+            list_add((free_block*)coal_ptr); 
+            return new_ptr;
+        }
+    }
+    
+    return NULL;
+    // newptr = mm_malloc(size);
+    // if (newptr == NULL)
+    //   return NULL;
+
+    // /* Copy the old data. */
+    // copySize = GET_SIZE(HDRP(oldptr));
+    // if (size < copySize)
+    //   copySize = size;
+    // memcpy(newptr, oldptr, copySize);
+    // mm_free(oldptr);
+    // return newptr;
 }
 
 /**********************************************************
