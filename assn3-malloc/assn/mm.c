@@ -91,7 +91,7 @@ int get_list_class(size_t size) {
         size >>= 1;
         result++;
     }
-    if (size <= 128) {
+    if (size <= 32) {
         result = 0;
     }
     result = MIN(result, NUM_FREE_LISTS - 1);
@@ -285,11 +285,11 @@ void * find_fit(size_t asize)
                 // fprintf(stderr, "find_fit\n");
                 int size = GET_SIZE(HDRP(free_list));
                 //remove it from the free list
-                if (size >= asize && size - asize < 128) {
+                if (size >= asize && size - asize < 32) {
                     // fprintf(stderr, "small find_fit\n");
                     remove_from_list(free_list);
                     return (void*) free_list;
-                } else if (size - asize > 128) {
+                } else if (size - asize > 32) {
                     // fprintf(stderr, "larger find_fit\n");
                     remove_from_list(free_list);
                     void *p = (void*)free_list + asize;
@@ -516,7 +516,7 @@ void *mm_realloc(void *ptr, size_t size)
     // shrinking
     else if (asize < old_size) { 
         int free_size = old_size - asize;
-        if (free_size >= 128) {
+        if (free_size >= 32) {
             void* free_ptr = (void*)ptr + asize;
             
             PUT(HDRP(ptr), PACK(asize, 1));
@@ -539,7 +539,7 @@ void *mm_realloc(void *ptr, size_t size)
         // new size fits in coalesced block
         if (coal_size >= asize) {
             int free_size = coal_size - asize;
-            if (free_size >= 128) {
+            if (free_size >= 32) {
                 void* free_ptr = (void*)coal_ptr + asize;
                 memmove(coal_ptr, ptr, old_size - DSIZE);
                 PUT(HDRP(coal_ptr), PACK(asize, 1));
