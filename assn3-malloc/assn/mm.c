@@ -155,7 +155,7 @@ void push(Node * bp) {
         bp->next = free_lists[class];
         free_lists[class]->pred = bp;
         bp->pred = NULL;
-        // free_lists[class] = bp;
+        free_lists[class] = bp;
     }
     // void *next = bp;
     // PUT(next, free_list);
