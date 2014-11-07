@@ -287,7 +287,7 @@ void * find_fit(size_t asize)
                 //remove it from the free list
                 if (size >= asize && size - asize < 128) {
                     remove_from_list(free_list);
-                    fprintf(stderr, "find_fit\n");
+                    fprintf(stderr, "small find_fit\n");
                     return (void*) free_list;
                 } else if (size - asize > 128) {
                     remove_from_list(free_list);
@@ -299,7 +299,7 @@ void * find_fit(size_t asize)
                     PUT(HDRP(p), PACK(size-asize,0));
                     PUT(FTRP(p), PACK(size-asize,0));
                     push(p);
-                    fprintf(stderr, "find_fit\n");
+                    fprintf(stderr, "larger find_fit\n");
                     return (void*) free_list;
                 }
             } while (free_list != free_lists[i]);
