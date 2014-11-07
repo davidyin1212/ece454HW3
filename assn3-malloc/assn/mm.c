@@ -443,7 +443,7 @@ void *mm_malloc(size_t size)
         return NULL;
 
     /* round it to a power of two value */
-    if (size < 128) { 
+    if (size < 512) { 
         int i = 1;
         while (i < size)
             i <<= 1;
