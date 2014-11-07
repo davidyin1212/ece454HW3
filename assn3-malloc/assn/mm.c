@@ -406,12 +406,12 @@ void *mm_realloc(void *ptr, size_t size)
     if (ptr == NULL)
       return (mm_malloc(size));
 
-    void *coal_ptr;
+    void *coalesce_ptr;
     void *oldptr = ptr;
     void *new_ptr;
     size_t asize;
     size_t old_size;
-    size_t coal_size;
+    size_t coalesce_size;
     size_t copy_size;
 
     /* Adjust block size to include overhead and alignment reqs. */
@@ -445,28 +445,28 @@ void *mm_realloc(void *ptr, size_t size)
     else {
         PUT(HDRP(ptr), PACK(old_size, 0));
         PUT(FTRP(ptr), PACK(old_size, 0));
-        coal_ptr = coalesce(ptr);
-        coal_size = GET_SIZE(HDRP(coal_ptr));
+        coalesce_ptr = coalesce(ptr);
+        coalesce_size = GET_SIZE(HDRP(coalesce_ptr));
         
         // new size fits in coalesced block
-        if (coal_size >= asize) {
-            int free_size = coal_size - asize;
+        if (coalesce_size >= asize) {
+            int free_size = coalesce_size - asize;
             if (free_size >= 32) {
-                void* free_ptr = (void*)coal_ptr + asize;
-                memmove(coal_ptr, ptr, old_size - DSIZE);
-                PUT(HDRP(coal_ptr), PACK(asize, 1));
-                PUT(FTRP(coal_ptr), PACK(asize, 1));
+                void* free_ptr = (void*)coalesce_ptr + asize;
+                memmove(coalesce_ptr, ptr, old_size - DSIZE);
+                PUT(HDRP(coalesce_ptr), PACK(asize, 1));
+                PUT(FTRP(coalesce_ptr), PACK(asize, 1));
                 PUT(HDRP(free_ptr), PACK(free_size, 0));
                 PUT(FTRP(free_ptr), PACK(free_size, 0));
                 push(free_ptr);
                 
             }
             else {
-                memmove(coal_ptr, ptr, old_size - DSIZE);
-                PUT(HDRP(coal_ptr), PACK(coal_size, 1));
-                PUT(FTRP(coal_ptr), PACK(coal_size, 1));
+                memmove(coalesce_ptr, ptr, old_size - DSIZE);
+                PUT(HDRP(coalesce_ptr), PACK(coalesce_size, 1));
+                PUT(FTRP(coalesce_ptr), PACK(coalesce_size, 1));
             }
-            return coal_ptr;
+            return coalesce_ptr;
         }
 
         // new size does not fit in coalesced block
@@ -479,7 +479,7 @@ void *mm_realloc(void *ptr, size_t size)
             /* Copy the old data. */
             memcpy(new_ptr, ptr, old_size - DSIZE);
             
-            push((Node*)coal_ptr); 
+            push((Node*)coalesce_ptr); 
             return new_ptr;
         }
     }
