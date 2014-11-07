@@ -146,8 +146,8 @@ void push(Node * bp) {
     if (free_lists[class] == NULL)
     {
         free_lists[class] = bp;
-        bp->next = NULL;
-        bp->pred = NULL;
+        free_lists[class]->next = NULL;
+        free_lists[class]->pred = NULL;
         // fprintf(stderr, "set free_list value: %p\n", free_list);
         // fprintf(stderr, "set free_lists value: %p\n", free_list[class]);  
     } else {
