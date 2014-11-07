@@ -339,6 +339,8 @@ void place(void* bp, size_t asize)
     size_t bsize = GET_SIZE(HDRP(bp));
     PUT(HDRP(bp), PACK(bsize, 1));
     PUT(FTRP(bp), PACK(bsize, 1));
+    fprintf(stderr, "free_lists: %p", free_lists[0]);
+    
     // fprintf(stderr, "bsize: %d asize: %d\n", bsize, asize);
 
     // int isHead = 0;
@@ -399,7 +401,6 @@ void place(void* bp, size_t asize)
  **********************************************************/
 void mm_free(void *bp)
 {
-    fprintf(stderr, "free_lists: %p", free_lists[0]);
     if(bp == NULL){
       return;
     }
