@@ -507,7 +507,7 @@ void *mm_realloc(void *ptr, size_t size)
     // shrinking
     else if (asize < old_size) { 
         int free_size = old_size - asize;
-        if (free_size >= MIN_FREE_SIZE) {
+        if (free_size >= 128) {
             void* free_ptr = (void*)ptr + asize;
             
             PUT(HDRP(ptr), PACK(asize, 1));
@@ -530,7 +530,7 @@ void *mm_realloc(void *ptr, size_t size)
         // new size fits in coalesced block
         if (coal_size >= asize) {
             int free_size = coal_size - asize;
-            if (free_size >= MIN_FREE_SIZE) {
+            if (free_size >= 128) {
                 void* free_ptr = (void*)coal_ptr + asize;
                 memmove(coal_ptr, ptr, old_size - DSIZE);
                 PUT(HDRP(coal_ptr), PACK(asize, 1));
@@ -558,7 +558,7 @@ void *mm_realloc(void *ptr, size_t size)
             /* Copy the old data. */
             memcpy(new_ptr, ptr, old_size - DSIZE);
             
-            list_add((free_block*)coal_ptr); 
+            list_add((Node*)coal_ptr); 
             return new_ptr;
         }
     }
