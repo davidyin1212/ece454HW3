@@ -274,7 +274,7 @@ void * find_fit(size_t asize)
             do {
                 // fprintf(stderr, "find_fit\n");
                 int size = GET_SIZE(HDRP(free_list));
-                free_size = size - asize;
+                int free_size = size - asize;
                 //remove it from the free list
                 if (size >= asize && free_size < 32) {
                     // fprintf(stderr, "small find_fit\n");
