@@ -425,7 +425,7 @@ void *mm_realloc(void *ptr, size_t size)
     if (asize == old_size)
         return ptr;
     
-    // shrinking
+    // if shrinking just reallocate old sapce
     else if (asize < old_size) { 
         int free_size = old_size - asize;
         if (free_size >= 32) {
@@ -436,7 +436,7 @@ void *mm_realloc(void *ptr, size_t size)
             
             PUT(HDRP(free_ptr), PACK(free_size, 0));
             PUT(FTRP(free_ptr), PACK(free_size, 0));
-            push(free_ptr);
+            push(coalesce(free_ptr));
         }
         return ptr;
     }
@@ -485,17 +485,6 @@ void *mm_realloc(void *ptr, size_t size)
     }
     
     return NULL;
-    // newptr = mm_malloc(size);
-    // if (newptr == NULL)
-    //   return NULL;
-
-    // /* Copy the old data. */
-    // copySize = GET_SIZE(HDRP(oldptr));
-    // if (size < copySize)
-    //   copySize = size;
-    // memcpy(newptr, oldptr, copySize);
-    // mm_free(oldptr);
-    // return newptr;
 }
 
 /**********************************************************
