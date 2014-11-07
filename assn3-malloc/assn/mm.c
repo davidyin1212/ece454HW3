@@ -266,72 +266,72 @@ void *extend_heap(size_t words)
  **********************************************************/
 void * find_fit(size_t asize)
 {
-    // int class = get_list_class(asize);
-    // int i;
-    // for (i = class; i < NUM_FREE_LISTS; i++) {
-    //     if (free_lists[i] != NULL) {
-    //         Node* free_list = free_lists[i];
-    //         do {
-    //             // fprintf(stderr, "find_fit\n");
-    //             int size = GET_SIZE(HDRP(free_list));
-    //             free_size = size - asize;
-    //             //remove it from the free list
-    //             if (size >= asize && free_size < 32) {
-    //                 // fprintf(stderr, "small find_fit\n");
-    //                 remove_from_list(free_list);
-    //                 return (void*) free_list;
-    //             } else if (free_size >= 32) {
-    //                 // fprintf(stderr, "larger find_fit\n");
-    //                 remove_from_list(free_list);
-    //                 void *p = (void*)free_list + asize;
-
-    //                 PUT(HDRP(free_list), PACK(asize, 0));
-    //                 PUT(FTRP(free_list), PACK(asize, 0));
-
-    //                 PUT(HDRP(p), PACK(size-asize,0));
-    //                 PUT(FTRP(p), PACK(size-asize,0));
-    //                 push(p);
-    //                 return (void*) free_list;
-    //             }
-    //             free_list = free_list->next;
-    //         } while (free_list != free_lists[i]);
-    //     }
-    // }
-    // return NULL;
-
     int class = get_list_class(asize);
     int i;
     for (i = class; i < NUM_FREE_LISTS; i++) {
-        // fprintf(stderr, "NUM_FREE_LISTS: %d\n", );
         if (free_lists[i] != NULL) {
-            Node* p = free_lists[i];
+            Node* free_list = free_lists[i];
             do {
-                int size = GET_SIZE(HDRP(p));
-                int free_size = size - asize;
+                // fprintf(stderr, "find_fit\n");
+                int size = GET_SIZE(HDRP(free_list));
+                free_size = size - asize;
+                //remove it from the free list
                 if (size >= asize && free_size < 32) {
-                    remove_from_list(p);
-                    return (void*)p;
+                    // fprintf(stderr, "small find_fit\n");
+                    remove_from_list(free_list);
+                    return (void*) free_list;
+                } else if (free_size >= 32) {
+                    // fprintf(stderr, "larger find_fit\n");
+                    remove_from_list(free_list);
+                    void *p = (void*)free_list + asize;
+
+                    PUT(HDRP(free_list), PACK(asize, 0));
+                    PUT(FTRP(free_list), PACK(asize, 0));
+
+                    PUT(HDRP(p), PACK(free_size,0));
+                    PUT(FTRP(p), PACK(free_size,0));
+                    push(p);
+                    return (void*) free_list;
                 }
-                else if (free_size >= 32) {
-                    remove_from_list(p);
-                    void* free_ptr = (void*)p + asize;
-                    
-                    PUT(HDRP(p), PACK(asize, 0));
-                    PUT(FTRP(p), PACK(asize, 0));
-                    
-                    PUT(HDRP(free_ptr), PACK(free_size, 0));
-                    PUT(FTRP(free_ptr), PACK(free_size, 0));
-                    push(free_ptr);
-                    return (void*)p;
-                }    
-                p = p->next;
-            } while(p!=free_lists[i]);
+                free_list = free_list->next;
+            } while (free_list != free_lists[i]);
         }
-        
-        
     }
-    
     return NULL;
+
+    // int class = get_list_class(asize);
+    // int i;
+    // for (i = class; i < NUM_FREE_LISTS; i++) {
+    //     // fprintf(stderr, "NUM_FREE_LISTS: %d\n", );
+    //     if (free_lists[i] != NULL) {
+    //         Node* p = free_lists[i];
+    //         do {
+    //             int size = GET_SIZE(HDRP(p));
+    //             int free_size = size - asize;
+    //             if (size >= asize && free_size < 32) {
+    //                 remove_from_list(p);
+    //                 return (void*)p;
+    //             }
+    //             else if (free_size >= 32) {
+    //                 remove_from_list(p);
+    //                 void* free_ptr = (void*)p + asize;
+                    
+    //                 PUT(HDRP(p), PACK(asize, 0));
+    //                 PUT(FTRP(p), PACK(asize, 0));
+                    
+    //                 PUT(HDRP(free_ptr), PACK(free_size, 0));
+    //                 PUT(FTRP(free_ptr), PACK(free_size, 0));
+    //                 push(free_ptr);
+    //                 return (void*)p;
+    //             }    
+    //             p = p->next;
+    //         } while(p!=free_lists[i]);
+    //     }
+        
+        
+    // }
+    
+    // return NULL;
 
 
     // void *bp;
