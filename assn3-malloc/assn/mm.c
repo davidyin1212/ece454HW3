@@ -91,9 +91,10 @@ int get_list_class(size_t size) {
         size >>= 1;
         result++;
     }
-    if (size <= 32) {
-        result = 0;
-    }
+    // if (size <= 32) {
+    //     result = 0;
+    // }
+    result = MAX(0, result-5);
     result = MIN(result, NUM_FREE_LISTS - 1);
     return result;
 }
