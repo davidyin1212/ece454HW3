@@ -94,7 +94,6 @@ int get_list_class(size_t size) {
     if (size <= 32) {
         result = 0;
     }
-    // result = MAX(0, result-5);
     result = MIN(result, NUM_FREE_LISTS - 1);
     return result;
 }
@@ -105,7 +104,6 @@ void remove_from_list(Node *p) {
         return;
     }
     int class = get_list_class(GET_SIZE(HDRP(p)));
-    // Node* free_list = free_lists[class];
 
     if (p->next == NULL) {
         free_lists[class] = NULL;
@@ -117,22 +115,6 @@ void remove_from_list(Node *p) {
             free_lists[class] = p->next;
         }   
     }
-    // fprintf(stderr, "value of p: %p\n", (uintptr_t)p);
-    // //get p next's pred pointer
-    // void *pred_of_next = NULL;
-    // if (GET(p) != NULL)
-    //     pred_of_next = GET(p) + WSIZE;
-    // //get p pred's next pointer
-    // void *next_of_pred = GET(p + WSIZE);
-    // fprintf(stderr, "value of pred: %p value of next: %p\n", (uintptr_t)next_of_pred, GET(p));
-    // if (next_of_pred != NULL) {
-    //     fprintf(stderr, "executing next\n");
-    //     PUT(next_of_pred, (uintptr_t) GET(p));
-    // }
-    // if (pred_of_next != NULL) {
-    //     fprintf(stderr, "executing pred\n");
-    //     PUT(pred_of_next, (uintptr_t) GET(p + WSIZE));
-    // }
 }
 
 // add to front of list
@@ -141,28 +123,18 @@ void push(Node * bp) {
         return;
     }
     int class = get_list_class(GET_SIZE(HDRP(bp)));
-    // fprintf(stderr, "class: %d\n", GET_SIZE(HDRP(bp)));
-    // Node* free_list = free_lists[class];
 
     if (free_lists[class] == NULL)
     {
         free_lists[class] = bp;
         free_lists[class]->next = NULL;
-        free_lists[class]->pred = NULL;
-        // fprintf(stderr, "set free_list value: %p\n", free_list);
-        // fprintf(stderr, "set free_lists value: %p\n", free_list[class]);  
+        free_lists[class]->pred = NULL; 
     } else {
-        // fprintf(stderr, "free list is not null\n");
         bp->next = free_lists[class];
         bp->pred = NULL;
-        // bp->pred->next = bp;
         bp->next->pred = bp;
         free_lists[class] = bp;
     }
-    // void *next = bp;
-    // PUT(next, free_list);
-    // PUT(next + WSIZE, NULL);
-    // free_list = bp;
 }
 
 /**********************************************************
@@ -202,7 +174,6 @@ void *coalesce(void *bp)
     size_t size = GET_SIZE(HDRP(bp));
 
     if (prev_alloc && next_alloc) {       /* Case 1 */
-        // fprintf(stderr, "both allocated\n");
         return bp;
     }
 
@@ -211,7 +182,6 @@ void *coalesce(void *bp)
         size += GET_SIZE(HDRP(NEXT_BLKP(bp)));
         PUT(HDRP(bp), PACK(size, 0));
         PUT(FTRP(bp), PACK(size, 0));
-        // fprintf(stderr, "prev allocated\n");
         return (bp);
     }
 
@@ -220,7 +190,6 @@ void *coalesce(void *bp)
         size += GET_SIZE(HDRP(PREV_BLKP(bp)));
         PUT(FTRP(bp), PACK(size, 0));
         PUT(HDRP(PREV_BLKP(bp)), PACK(size, 0));
-        // fprintf(stderr, "next allocated\n");
         return (PREV_BLKP(bp));
     }
 
@@ -231,7 +200,6 @@ void *coalesce(void *bp)
             GET_SIZE(FTRP(NEXT_BLKP(bp)))  ;
         PUT(HDRP(PREV_BLKP(bp)), PACK(size,0));
         PUT(FTRP(NEXT_BLKP(bp)), PACK(size,0));
-        // fprintf(stderr, "none allocated\n");
         return (PREV_BLKP(bp));
     }
 }
@@ -274,16 +242,13 @@ void * find_fit(size_t asize)
         if (free_lists[i] != NULL) {
             Node* free_list = free_lists[i];
             do {
-                // fprintf(stderr, "find_fit\n");
                 int size = GET_SIZE(HDRP(free_list));
                 int free_size = size - asize;
                 //remove it from the free list
                 if (size >= asize && free_size < 32) {
-                    // fprintf(stderr, "small find_fit\n");
                     remove_from_list(free_list);
                     return (void*) free_list;
                 } else if (free_size >= 32) {
-                    // fprintf(stderr, "larger find_fit\n");
                     remove_from_list(free_list);
                     void *p = (void*)free_list + asize;
 
@@ -381,12 +346,6 @@ void *mm_malloc(size_t size)
     if ((bp = extend_heap(asize/WSIZE)) == NULL)
         return NULL;
     place(bp, asize);
-
-    // PUT(FTRP(bp) + DSIZE, (uintptr_t) next);
-    // PUT(FTRP(bp) + DSIZE + WSIZE, (uintptr_t) pred);
-    // fprintf(stderr, "malloc heap free_list: %p\n", (uintptr_t) free_list);
-    // free_list = FTRP(bp) + DSIZE;
-    // fprintf(stderr, "after malloc heap free_list: %p\n", (uintptr_t) free_list);
     return bp;
 
 }
