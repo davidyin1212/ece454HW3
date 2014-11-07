@@ -69,7 +69,7 @@ team_t team = {
 #define NEXT_FREE_BLKP(bp) ((char *) GET(bp))
 #define PREV_FREE_BLKP(bp) ((char *) GET(bp + WSIZE))
 
-#define NUM_FREE_LISTS 100
+#define NUM_FREE_LISTS 10
 
 typedef struct block
 {
