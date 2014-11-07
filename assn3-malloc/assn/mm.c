@@ -107,7 +107,7 @@ void remove_from_list(Node *p) {
     Node* free_list = free_lists[class];
 
     if (p->next == NULL) {
-        free_list = NULL;
+        // free_list = NULL;
     } else {
         p->next->pred = p->pred;
         p->pred->next = p->next;
