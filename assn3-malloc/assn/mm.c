@@ -107,11 +107,11 @@ void remove_from_list(Node *p) {
     int class = get_list_class(GET_SIZE(HDRP(p)));
     // Node* free_list = free_lists[class];
 
-    if (p->next == p) {
+    if (p->next == NULL) {
         free_lists[class] = NULL;
     } else {
-        p->pred->next = p->next;
         p->next->pred = p->pred;
+        p->pred->next = p->next;
         if (free_lists[class] == p) {
             free_lists[class] = p->next;
         }   
@@ -146,15 +146,15 @@ void push(Node * bp) {
     if (free_lists[class] == NULL)
     {
         free_lists[class] = bp;
-        free_lists[class]->next = bp;
-        free_lists[class]->pred = bp;
+        free_lists[class]->next = NULL;
+        free_lists[class]->pred = NULL;
         // fprintf(stderr, "set free_list value: %p\n", free_list);
         // fprintf(stderr, "set free_lists value: %p\n", free_list[class]);  
     } else {
         // fprintf(stderr, "free list is not null\n");
         bp->next = free_lists[class];
-        bp->pred = free_lists[class]->pred;
-        bp->pred->next = bp;
+        bp->pred = NULL;
+        // bp->pred->next = bp;
         bp->next->pred = bp;
     }
     // void *next = bp;
